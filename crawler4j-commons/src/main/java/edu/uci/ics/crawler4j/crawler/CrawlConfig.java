@@ -47,11 +47,6 @@ public class CrawlConfig {
     private boolean resumableCrawling = false;
 
     /**
-     * The lock timeout for the underlying sleepycat DB, in milliseconds
-     */
-    private long dbLockTimeout = 500;
-
-    /**
      * Maximum depth of crawling For unlimited depth this parameter should be
      * set to -1
      */
@@ -292,19 +287,6 @@ public class CrawlConfig {
         this.resumableCrawling = resumableCrawling;
     }
 
-    /**
-     * Set the lock timeout for the underlying sleepycat DB, in milliseconds. Default is 500.
-     *
-     * @param dbLockTimeout
-     */
-    public void setDbLockTimeout(long dbLockTimeout) {
-        this.dbLockTimeout = dbLockTimeout;
-    }
-
-    public long getDbLockTimeout() {
-        return this.dbLockTimeout;
-    }
-
     public int getMaxDepthOfCrawling() {
         return maxDepthOfCrawling;
     }
@@ -333,7 +315,6 @@ public class CrawlConfig {
     }
 
     /**
-     *
      * @return userAgentString
      */
     public String getUserAgentString() {

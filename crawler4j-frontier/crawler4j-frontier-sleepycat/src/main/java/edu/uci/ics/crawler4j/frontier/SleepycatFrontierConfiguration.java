@@ -41,12 +41,12 @@ public class SleepycatFrontierConfiguration implements FrontierConfiguration {
     private final SleepycatDocIDServer docIdServer;
     private final Environment env;
 
-    public SleepycatFrontierConfiguration(CrawlConfig config) throws Exception {
+    public SleepycatFrontierConfiguration(CrawlConfig config, long dbLockTimeout) throws Exception {
         EnvironmentConfig envConfig = new EnvironmentConfig();
         envConfig.setAllowCreate(true);
         envConfig.setTransactional(config.isResumableCrawling());
         envConfig.setLocking(config.isResumableCrawling());
-        envConfig.setLockTimeout(config.getDbLockTimeout(), TimeUnit.MILLISECONDS);
+        envConfig.setLockTimeout(dbLockTimeout, TimeUnit.MILLISECONDS);
 
         File envHome = new File(config.getCrawlStorageFolder() + File.separator + "frontier");
         if (!envHome.exists()) {
@@ -70,6 +70,10 @@ public class SleepycatFrontierConfiguration implements FrontierConfiguration {
         this.env = new Environment(envHome, envConfig);
         this.docIdServer = new SleepycatDocIDServer(env, config);
         this.frontier = new SleepycatFrontierImpl(env, config);
+    }
+
+    public SleepycatFrontierConfiguration(CrawlConfig config) throws Exception {
+        this(config, 500);
     }
 
     @Override

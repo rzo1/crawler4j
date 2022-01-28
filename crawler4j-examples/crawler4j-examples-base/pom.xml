@@ -3,7 +3,7 @@
     <parent>
         <artifactId>crawler4j-examples</artifactId>
         <groupId>de.hs-heilbronn.mi</groupId>
-        <version>4.7.8-SNAPSHOT</version>
+        <version>4.8.0-SNAPSHOT</version>
     </parent>
     <artifactId>crawler4j-examples-base</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
@@ -20,6 +20,12 @@
         <dependency>
             <groupId>de.hs-heilbronn.mi</groupId>
             <artifactId>crawler4j-with-hsqldb</artifactId>
+            <version>${crawler4j.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>de.hs-heilbronn.mi</groupId>
+            <artifactId>crawler4j-with-urlfrontier</artifactId>
             <version>${crawler4j.version}</version>
             <type>pom</type>
         </dependency>

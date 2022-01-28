@@ -10,28 +10,28 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>${project.groupId}:${project.artifactId}</name>
-    <artifactId>crawler4j-frontier-hsqldb</artifactId>
+    <artifactId>crawler4j-frontier-urlfrontier</artifactId>
 
     <properties>
-        <hikaricp.version>5.0.1</hikaricp.version>
-        <hsqldb.version>2.6.1</hsqldb.version>
+        <url-frontier.version>1.0</url-frontier.version>
+        <protobuf-java-util.version>3.17.3</protobuf-java-util.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>${hsqldb.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>${hikaricp.version}</version>
-        </dependency>
-        <dependency>
             <groupId>de.hs-heilbronn.mi</groupId>
             <artifactId>crawler4j-commons</artifactId>
             <version>${crawler4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.crawler-commons</groupId>
+            <artifactId>urlfrontier-API</artifactId>
+            <version>${url-frontier.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>${protobuf-java-util.version}</version>
         </dependency>
         <!-- Logging API -->
         <dependency>
@@ -50,5 +50,6 @@
             <version>${slf4j.version}</version>
         </dependency>
     </dependencies>
+
 
 </project>
