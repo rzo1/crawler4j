@@ -304,8 +304,8 @@ public class URLFrontierAdapter implements Frontier, DocIDServer {
     }
 
     protected Urlfrontier.Stats getStatistics() {
-        crawlercommons.urlfrontier.Urlfrontier.String.Builder builder =
-                crawlercommons.urlfrontier.Urlfrontier.String.newBuilder();
+        Urlfrontier.QueueWithinCrawlParams.Builder builder =
+                Urlfrontier.QueueWithinCrawlParams.newBuilder();
 
         return blockingStub.getStats(builder.build());
 
