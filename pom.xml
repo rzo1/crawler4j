@@ -130,7 +130,7 @@
         <maven.jacoco.version>0.8.7</maven.jacoco.version>
         <maven.gmaven.plus.version>1.13.1</maven.gmaven.plus.version>
         <maven.versions.version>2.10.0</maven.versions.version>
-        <maven.forbiddenapis.version>3.2</maven.forbiddenapis.version>
+        <maven.forbiddenapis.version>3.3</maven.forbiddenapis.version>
         <maven.enforcer.version>3.0.0</maven.enforcer.version>
         <maven.surefire.version>2.22.2</maven.surefire.version>
     </properties>
