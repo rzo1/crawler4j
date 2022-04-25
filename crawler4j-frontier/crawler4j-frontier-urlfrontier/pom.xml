@@ -14,7 +14,7 @@
 
     <properties>
         <url-frontier.version>1.2</url-frontier.version>
-        <protobuf-java-util.version>3.19.4</protobuf-java-util.version>
+        <protobuf-java-util.version>3.20.1</protobuf-java-util.version>
     </properties>
 
     <dependencies>
