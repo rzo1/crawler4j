@@ -13,7 +13,7 @@
     <artifactId>crawler4j-frontier-urlfrontier</artifactId>
 
     <properties>
-        <url-frontier.version>2.0</url-frontier.version>
+        <url-frontier.version>2.1</url-frontier.version>
         <protobuf-java-util.version>3.21.1</protobuf-java-util.version>
     </properties>
 
