@@ -7,6 +7,6 @@ public class DummyWebURLFactory implements WebURLFactory {
 	
 	@Override
 	public WebURL newWebUrl() {
-		return new WebURLDto();
+		return new SimpleWebURL();
 	}
 }
