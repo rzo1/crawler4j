@@ -13,6 +13,7 @@ crawling the Web. Using it, you can setup a multi-threaded web crawler in few mi
 - [Quickstart](#quickstart)   
 - [More Examples](#more-examples)
 - [Configuration Details](#configuration-details)
+- [Reconstructing extra urls to crawl](#reconstructing-extra-urls-to-crawl)
 - [License](#license)
 
 ## Installation
