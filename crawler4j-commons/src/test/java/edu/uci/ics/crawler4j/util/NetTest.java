@@ -8,7 +8,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
-import edu.uci.ics.crawler4j.test.DummyWebURLFactory;
+import edu.uci.ics.crawler4j.test.SimpleWebURLFactory;
 import edu.uci.ics.crawler4j.url.TLDList;
 import edu.uci.ics.crawler4j.url.WebURL;
 
@@ -55,7 +55,7 @@ public class NetTest {
 			final CrawlConfig config = new CrawlConfig();
 			config.setAllowSingleLevelDomain(allowSingleLevelDomain);
 			final TLDList tldList = new TLDList(config);
-			final DummyWebURLFactory factory = new DummyWebURLFactory();
+			final SimpleWebURLFactory factory = new SimpleWebURLFactory();
 			final Net net = new Net(config, tldList, factory);
 			return net;
 		} catch (final IOException e) {
