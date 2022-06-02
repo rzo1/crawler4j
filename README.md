@@ -26,8 +26,7 @@ Add the following dependency to your pom.xml:
             <groupId>de.hs-heilbronn.mi</groupId>
             <artifactId>crawler4j-with-sleepycat</artifactId>
             <version>4.9.0</version>
-            <type>pom</type>
-        </dependency>    
+        </dependency>
 ```
 
 **Please check**, if the Oracle license for Sleepycat database complies with your use-case.
@@ -39,8 +38,7 @@ Otherwise, you can use `HSQLDB` instead
             <groupId>de.hs-heilbronn.mi</groupId>
             <artifactId>crawler4j-with-hsqldb</artifactId>
             <version>4.8.3</version>
-            <type>pom</type>
-        </dependency>    
+        </dependency>
 ```
 
 or you use an external [crawler-commons/url-frontier](https://github.com/crawler-commons/url-frontier)
@@ -50,8 +48,7 @@ or you use an external [crawler-commons/url-frontier](https://github.com/crawler
             <groupId>de.hs-heilbronn.mi</groupId>
             <artifactId>crawler4j-with-urlfrontier</artifactId>
             <version>4.8.3</version>
-            <type>pom</type>
-        </dependency>    
+        </dependency>
 ```
 
 ## Quickstart
