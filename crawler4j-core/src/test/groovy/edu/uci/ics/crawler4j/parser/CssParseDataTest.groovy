@@ -38,6 +38,7 @@ class CssParseDataTest extends Specification {
 
         and: "configure css parser"
         WebURL webUrl = webURLFactory.newWebUrl();
+        // This use case is rather simple. A css file can contain absolute urls to resources that reside on a different host.
         webUrl.setURL("http://example.com/css.css")
 
         when: "parse css"

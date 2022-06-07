@@ -2,7 +2,6 @@ package edu.uci.ics.crawler4j.tests.parser;
 
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -51,6 +50,29 @@ public class CssParseDataTest {
 		);
 	}
 	
+	/**
+	 * REMARK: THE HOST OF AN ABSOLUTE URL SHOULD NOT BE ALTERED.
+	 */
+	@Test
+	void extractAbsoluteUrlFromCssTest() {
+		// This css is a subset of: https://fonts.googleapis.com/css?family=Lato|Sanchez:400italic,400|Abhaya+Libre
+		final String cssText = TestUtils.getInputStringFrom("/css/fonts-absolute.css");
+		assertDataUrlsFound(cssText//
+				// This is currently the result, but is wrong
+				, "http://www.test.com/s/sanchez/v13/Ycm0sZJORluHnXbIfmxh_zQA.woff2"//
+				// This is what should be the result
+//				, "https://fonts.gstatic.com/s/sanchez/v13/Ycm0sZJORluHnXbIfmxh_zQA.woff2"//
+		);
+	}
+	
+	@Test
+	void extractRelativeUrlFromCssTest() {
+		final String cssText = TestUtils.getInputStringFrom("/css/fonts-relative.css");
+		assertDataUrlsFound(cssText//
+				, "http://www.test.com/path/s/sanchez/v13/Ycm0sZJORluHnXbIfmxh_zQA.woff2"//
+		);
+	}
+	
 	private void assertDataUrlsFound(final String cssText, final String... urls) {
 		final WebURL webURL = Crawler4jTestUtils.newWebURL("http://www.test.com/path/to/bootstrap.min.css");
 		
@@ -60,6 +82,6 @@ public class CssParseDataTest {
 		final Set<WebURL> outgoingUrls = cssParseData.getOutgoingUrls();
 		
 		Assertions.assertThat(outgoingUrls).hasSize(urls.length);
-		Assertions.assertThat(outgoingUrls).allMatch(t -> StringUtils.equalsAny(t.getURL(), urls));
+		Assertions.assertThat(outgoingUrls).map(t -> t.getURL()).isSubsetOf(urls);
 	}
 }
