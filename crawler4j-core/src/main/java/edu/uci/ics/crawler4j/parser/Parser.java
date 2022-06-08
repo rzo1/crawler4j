@@ -20,6 +20,7 @@
 package edu.uci.ics.crawler4j.parser;
 
 import crawlercommons.filters.basic.BasicURLNormalizer;
+import edu.uci.ics.crawler4j.Constants;
 import edu.uci.ics.crawler4j.url.WebURLFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +81,7 @@ public class Parser {
                         }
                     }
                 } else {
-                    parseData.setHtml("<html></html>");
+                    parseData.setHtml(Constants.EMPTY_HTML_TAGS);
                 }
                 page.setParseData(parseData);
                 if (parseData.getHtml() == null) {

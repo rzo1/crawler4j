@@ -29,6 +29,7 @@ import com.linkedin.urls.Url;
 import com.linkedin.urls.detection.UrlDetector;
 import com.linkedin.urls.detection.UrlDetectorOptions;
 
+import edu.uci.ics.crawler4j.Constants;
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.url.TLDList;
 import edu.uci.ics.crawler4j.url.WebURL;
@@ -54,7 +55,7 @@ public class Net {
     }
 
     public Set<WebURL> extractUrls(String input) {
-        if (input == null) {
+        if (input == null || Constants.EMPTY_HTML_TAGS.equalsIgnoreCase(input)) {
             return Collections.emptySet();
         } else {
             UrlDetector detector = new UrlDetector(input, getOptions());

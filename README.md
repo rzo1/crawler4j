@@ -13,6 +13,7 @@ crawling the Web. Using it, you can setup a multi-threaded web crawler in few mi
 - [Quickstart](#quickstart)   
 - [More Examples](#more-examples)
 - [Configuration Details](#configuration-details)
+- [Reconstructing extra urls to crawl](#reconstructing-extra-urls-to-crawl)
 - [License](#license)
 
 ## Installation
@@ -26,8 +27,7 @@ Add the following dependency to your pom.xml:
             <groupId>de.hs-heilbronn.mi</groupId>
             <artifactId>crawler4j-with-sleepycat</artifactId>
             <version>4.9.0</version>
-            <type>pom</type>
-        </dependency>    
+        </dependency>
 ```
 
 **Please check**, if the Oracle license for Sleepycat database complies with your use-case.
@@ -39,8 +39,7 @@ Otherwise, you can use `HSQLDB` instead
             <groupId>de.hs-heilbronn.mi</groupId>
             <artifactId>crawler4j-with-hsqldb</artifactId>
             <version>4.8.3</version>
-            <type>pom</type>
-        </dependency>    
+        </dependency>
 ```
 
 or you use an external [crawler-commons/url-frontier](https://github.com/crawler-commons/url-frontier)
@@ -50,8 +49,7 @@ or you use an external [crawler-commons/url-frontier](https://github.com/crawler
             <groupId>de.hs-heilbronn.mi</groupId>
             <artifactId>crawler4j-with-urlfrontier</artifactId>
             <version>4.8.3</version>
-            <type>pom</type>
-        </dependency>    
+        </dependency>
 ```
 
 ## Quickstart
@@ -74,33 +72,42 @@ public class MyCrawler extends WebCrawler {
      * with "https://www.ics.uci.edu/". In this case, we didn't need the
      * referringPage parameter to make the decision.
      */
-     @Override
-     public boolean shouldVisit(Page referringPage, WebURL url) {
-         String href = url.getURL().toLowerCase();
-         return !FILTERS.matcher(href).matches()
-                && href.startsWith("https://www.ics.uci.edu/");
-     }
-
-     /**
-      * This function is called when a page is fetched and ready
-      * to be processed by your program.
-      */
-     @Override
-     public void visit(Page page) {
-         String url = page.getWebURL().getURL();
-         System.out.println("URL: " + url);
-
-         if (page.getParseData() instanceof HtmlParseData) {
-             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
-             String text = htmlParseData.getText();
-             String html = htmlParseData.getHtml();
-             Set<WebURL> links = htmlParseData.getOutgoingUrls();
-
-             System.out.println("Text length: " + text.length());
-             System.out.println("Html length: " + html.length());
-             System.out.println("Number of outgoing links: " + links.size());
-         }
+    @Override
+    public boolean shouldVisit(Page referringPage, WebURL url) {
+        String href = url.getURL().toLowerCase();
+        return !FILTERS.matcher(href).matches()
+               && href.startsWith("https://www.ics.uci.edu/");
     }
+
+    /**
+     * This function is called when a page is fetched and ready
+      * to be processed by your program.
+     */
+    @Override
+    public void visit(Page page) {
+        String url = page.getWebURL().getURL();
+        System.out.println("URL: " + url);
+
+        if (page.getParseData() instanceof HtmlParseData) {
+            HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
+            String text = htmlParseData.getText();
+            String html = htmlParseData.getHtml();
+            Set<WebURL> links = htmlParseData.getOutgoingUrls();
+
+            System.out.println("Text length: " + text.length());
+            System.out.println("Html length: " + html.length());
+            System.out.println("Number of outgoing links: " + links.size());
+        }
+    }
+    
+    /**
+     * Determine whether links found at the given URL should be added to the queue for crawling.
+     */
+    @Override
+    protected boolean shouldFollowLinksIn(WebURL url) {
+        return super.shouldFollowLinksIn(url);
+    }
+    
 }
 ```
 As can be seen in the above code, there are two main functions that should be overridden:
@@ -110,6 +117,11 @@ the above example, this example is not allowing .css, .js and media files and on
  pages within 'www.ics.uci.edu' domain.
 - visit: This function is called after the content of a URL is downloaded successfully.
  You can easily get the url, text, links, html, and unique id of the downloaded page.
+- (extra) shouldFollowLinksIn: can also be overridden as needed. false means none of the outgoing links are scheduled to be crawled.
+
+The flow is as follows:  
+fetch url -> parse => outgoing links are detected -> "shouldFollowLinksIn": decide for all outgoing urls -> "shouldVisit": a more fine grained (per url) decision
+
 
 You should also implement a controller class which specifies the seeds of the crawl,
 the folder in which intermediate crawl data should be stored and the number of concurrent
@@ -242,6 +254,48 @@ for more details. By default crawler4j uses the following user agent string:
 However, you can overwrite it:
 ```java
 crawlConfig.setUserAgentString(userAgentString);
+```
+
+## Reconstructing extra urls to crawl
+In these heydays of JavaScript frameworks not all links can always be easily detected.  
+Following is a naive implementation to add more links to crawl after prying them out of fetched content:  
+
+```java
+public class MyWebCrawler extends WebCrawler {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(MyWebCrawler.class);
+	
+	@Override
+	public void visit(final Page page) {
+		
+		final List<WebURL> pageUrls = new ArrayList<>();
+		// ... -> gathering/reconstructing urls from page.getContentData() or page.getParseData() (more likely)
+		pageUrls.addAll(page.getParseData().getOutgoingUrls()); // Useless, these are already scheduled automatically!!
+		
+		// Technically possible, but it's better to define extra urls to fetch inside a custom HtmlParser.
+		// That way the parent url will automatically be linked with it as well as the crawl depth.
+		getMyController().getFrontier().scheduleAll(pageUrls);
+		
+		// Also possible, but again has no notion of crawl depth, parent url, no "shouldFollowLinksIn(...)"-functionality...
+		final List<String> stringUrls = new ArrayList<>();
+		try {
+			getMyController().addSeeds(stringUrls);
+		} catch (InterruptedException e) {
+			LOGGER.error("Unable to add seeds -> exception: ", e);
+		}
+	}
+}
+```
+
+A better approach is detecting the extra links while parsing. The links will get added to the list of ``page.getParseData().outgoingUrls()``:
+
+```java
+// Use this constructor:
+new CrawlController(config, normalizer, pageFetcher, parser, robotstxtServer, tldList, frontierConfiguration);
+
+// Of course first create a custom parser:
+new Parser(config, normalizer, htmlParser, tldList, frontierConfiguration.getWebURLFactory());
+// -> the magic should happen inside a custom htmlParser implementation.
 ```
 
 ## License

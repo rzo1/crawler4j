@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 import crawlercommons.filters.basic.BasicURLNormalizer;
 import edu.uci.ics.crawler4j.url.WebURL;
 import edu.uci.ics.crawler4j.url.WebURLFactory;
+import org.apache.commons.lang3.StringUtils;
 
 public class CssParseData extends TextParseData {
 
@@ -98,11 +99,13 @@ public class CssParseData extends TextParseData {
             if (url == null) {
                 url = matcher.group(3);
             }
-            if (url == null || url.startsWith("data:")) {
+            if (url == null || StringUtils.startsWithAny(url, "data:", "'data:", "\"data:")) { // test for incomplete matches as well
                 continue;
             }
             extractedUrls.add(url);
         }
+
+
         return extractedUrls;
     }
 

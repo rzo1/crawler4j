@@ -76,10 +76,10 @@ public class URLFrontierAdapter implements Frontier, DocIDServer {
         final AtomicBoolean completed = new AtomicBoolean(false);
         int sent = 0;
 
-        StreamObserver<Urlfrontier.String> responseObserver =
+        StreamObserver<crawlercommons.urlfrontier.Urlfrontier.AckMessage> responseObserver =
                 new StreamObserver<>() {
                     @Override
-                    public void onNext(crawlercommons.urlfrontier.Urlfrontier.String value) {
+                    public void onNext(crawlercommons.urlfrontier.Urlfrontier.AckMessage value) {
                         // receives confirmation that the value has been received
                         acked.addAndGet(1);
                     }
@@ -202,10 +202,10 @@ public class URLFrontierAdapter implements Frontier, DocIDServer {
         if (webURL instanceof URLFrontierWebURLImpl) {
             URLFrontierWebURLImpl url = (URLFrontierWebURLImpl) webURL;
 
-            final StreamObserver<Urlfrontier.String> responseObserver =
+            final StreamObserver<crawlercommons.urlfrontier.Urlfrontier.AckMessage> responseObserver =
                     new StreamObserver<>() {
                         @Override
-                        public void onNext(crawlercommons.urlfrontier.Urlfrontier.String value) {
+                        public void onNext(crawlercommons.urlfrontier.Urlfrontier.AckMessage value) {
                             // receives confirmation that the value has been received
                             completedPages.addAndGet(1);
                         }

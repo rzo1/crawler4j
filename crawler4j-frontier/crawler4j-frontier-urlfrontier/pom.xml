@@ -5,7 +5,7 @@
     <parent>
         <artifactId>crawler4j-frontier</artifactId>
         <groupId>de.hs-heilbronn.mi</groupId>
-        <version>4.9.0</version>
+        <version>4.9.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,7 +13,7 @@
     <artifactId>crawler4j-frontier-urlfrontier</artifactId>
 
     <properties>
-        <url-frontier.version>2.0</url-frontier.version>
+        <url-frontier.version>2.1</url-frontier.version>
         <protobuf-java-util.version>3.21.1</protobuf-java-util.version>
     </properties>
 
