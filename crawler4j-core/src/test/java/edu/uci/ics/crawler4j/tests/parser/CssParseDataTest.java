@@ -15,19 +15,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class CssParseDataTest {
 
     /**
-     * REMARK: NO URLS SHOULD BE FOUND.
      * <p>
-     * The problem is that the pattern inside CssParseData will match parts of data urls instead of the complete url.
+     * Remark: no urls should be found.
+     * </p><p>
+     * A problem was that the pattern inside CssParseData will match parts of data urls instead of the complete url.
      * More specifically, following will get matched
      * by the expression for "url(...)" instead of
      * by the expression for "url("...")":
      * url("...)...")
      * <p>
-     * A possible solution is to later on inside the extractUrlInCssText()-method instead of:
-     * if (url == null || url.startsWith("data:")) {
-     * also test for incomplete matches with:
-     * if (url == null || StringUtils.startsWithAny(url, "data:", "'data:", "\"data:")) {
-     * (org.apache.commons.lang3.StringUtils)
      */
     @Test
     void extractUrlInCssTextIgnoresDataUrlsFromBootstrapMinCssTest() {
@@ -36,7 +32,7 @@ public class CssParseDataTest {
     }
 
     /**
-     * REMARK: NO URLS SHOULD BE FOUND.
+     * Remark: no urls should be found.
      */
     @Test
     void extractUrlInCssTextIgnoresDataUrlFromBootstrapSubsetTest() {
