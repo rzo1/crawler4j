@@ -48,10 +48,10 @@ public class CssParseDataTest {
 		// This css is a subset of: https://fonts.googleapis.com/css?family=Lato|Sanchez:400italic,400|Abhaya+Libre
 		final String cssText = TestUtils.getInputStringFrom("/css/fonts-absolute.css");
 		assertDataUrlsFound(cssText//
-				// This is currently the result, but is wrong
-				, "http://www.test.com/s/sanchez/v13/Ycm0sZJORluHnXbIfmxh_zQA.woff2"//
+				// This was previously the result, but is wrong
+//				, "http://www.test.com/s/sanchez/v13/Ycm0sZJORluHnXbIfmxh_zQA.woff2"//
 				// This is what should be the result
-//				, "https://fonts.gstatic.com/s/sanchez/v13/Ycm0sZJORluHnXbIfmxh_zQA.woff2"//
+				, "https://fonts.gstatic.com/s/sanchez/v13/Ycm0sZJORluHnXbIfmxh_zQA.woff2"//
 		);
 	}
 	
