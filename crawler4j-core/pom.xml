@@ -128,6 +128,11 @@
             <version>${cache2k.version}</version>
             <scope>runtime</scope>
         </dependency>
+					<dependency>
+						<groupId>com.helger</groupId>
+						<artifactId>ph-css</artifactId>
+						<version>6.5.0</version>
+					</dependency>
         <!-- Logging API -->
         <dependency>
             <groupId>org.slf4j</groupId>

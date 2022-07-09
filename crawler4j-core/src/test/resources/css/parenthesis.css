@@ -1,0 +1,15 @@
+/* test with
+	parenthesis
+	duplicate urls
+	multiple unique urls
+	a url in comments: url('commentedUrl.jpg')
+*/
+.localWallpapered {
+	background-image: url('leaves-medium (1920x1280).jpg');
+}
+.localWallpaperedAgain {
+	background-image: url('leaves-medium (1920x1280).jpg');
+}
+.localWallpaperedDifferent {
+	background-image: url('/images/other-wallpaper.png');
+}

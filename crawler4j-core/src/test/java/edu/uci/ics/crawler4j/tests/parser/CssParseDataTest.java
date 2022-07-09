@@ -33,6 +33,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CssParseDataTest {
 
+	@Test
+	void extractUrlWithParenthesisTest() {
+		final String cssText = TestUtils.getInputStringFrom("/css/parenthesis.css");
+		assertUrlsFound(cssText//
+				// This was previously the result, but is wrong
+//				, "http://www.test.com/path/to/'leaves-medium%20(1920x1280"//
+				// This is what should be the result
+				, "http://www.test.com/path/to/leaves-medium%20(1920x1280).jpg"//
+				, "http://www.test.com/images/other-wallpaper.png"//
+		);
+	}
+	
     /**
      * <p>
      * Remark: no urls should be found.
@@ -60,13 +72,13 @@ public class CssParseDataTest {
     }
 	
 	/**
-	 * REMARK: THE HOST OF AN ABSOLUTE URL SHOULD NOT BE ALTERED.
+	 * Remark: the host of an absolute url should not be altered.
 	 */
 	@Test
 	void extractAbsoluteUrlFromCssTest() {
 		// This css is a subset of: https://fonts.googleapis.com/css?family=Lato|Sanchez:400italic,400|Abhaya+Libre
 		final String cssText = TestUtils.getInputStringFrom("/css/fonts-absolute.css");
-		assertDataUrlsFound(cssText//
+		assertUrlsFound(cssText//
 				// This was previously the result, but is wrong
 //				, "http://www.test.com/s/sanchez/v13/Ycm0sZJORluHnXbIfmxh_zQA.woff2"//
 				// This is what should be the result
@@ -77,7 +89,7 @@ public class CssParseDataTest {
 	@Test
 	void extractRelativeUrlFromCssTest() {
 		final String cssText = TestUtils.getInputStringFrom("/css/fonts-relative.css");
-		assertDataUrlsFound(cssText//
+		assertUrlsFound(cssText//
 				, "http://www.test.com/path/s/sanchez/v13/Ycm0sZJORluHnXbIfmxh_zQA.woff2"//
 		);
 	}
@@ -93,7 +105,7 @@ public class CssParseDataTest {
         Assertions.assertThat(outgoingUrls).isEmpty();
     }
     
-	private void assertDataUrlsFound(final String cssText, final String... urls) {
+	private void assertUrlsFound(final String cssText, final String... urls) {
 		final WebURL webURL = Crawler4jTestUtils.newWebURL("http://www.test.com/path/to/bootstrap.min.css");
 		
 		final CssParseData cssParseData = Crawler4jTestUtils.newCssParseData();

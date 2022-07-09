@@ -38,88 +38,55 @@ package edu.uci.ics.crawler4j.parser;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import com.helger.css.ECSSVersion;
+import com.helger.css.decl.CascadingStyleSheet;
+import com.helger.css.decl.visit.CSSVisitor;
+import com.helger.css.reader.CSSReader;
 
 import crawlercommons.filters.basic.BasicURLNormalizer;
-import edu.uci.ics.crawler4j.url.UrlResolver;
 import edu.uci.ics.crawler4j.url.WebURL;
 import edu.uci.ics.crawler4j.url.WebURLFactory;
-import org.apache.commons.lang3.StringUtils;
 
 public class CssParseData extends TextParseData {
-
-    private final WebURLFactory factory;
-    private final BasicURLNormalizer normalizer;
-
-    public CssParseData(WebURLFactory webURLFactory, BasicURLNormalizer normalizer) {
-        this.factory = webURLFactory;
-        this.normalizer = normalizer;
-    }
-
-    private Set<WebURL> parseOutgoingUrls(WebURL referringPage) {
-
-        Set<String> extractedUrls = extractUrlInCssText(this.getTextContent());
-
-        final String pageUrl = referringPage.getURL();
-
-        Set<WebURL> outgoingUrls = new HashSet<>();
-        for (String url : extractedUrls) {
-
-        	final String seedUrl = toSeedUrl(pageUrl, url);
-
-            WebURL webURL = factory.newWebUrl();
-            webURL.setURL(seedUrl);
-            outgoingUrls.add(webURL);
-
-        }
-        return outgoingUrls;
-    }
-    
-    private String toSeedUrl(final String referenceAbsoluteUrl, final String url) {
-  		// Normalization is needed, because the String will be input for URI.create(...).
-    	return normalizer.filter(UrlResolver.resolveUrl((referenceAbsoluteUrl == null) ? "" : referenceAbsoluteUrl, url));
-  	}
-
-    public void setOutgoingUrls(WebURL referringPage){
-
-        Set<WebURL> outgoingUrls = parseOutgoingUrls(referringPage);
-        this.setOutgoingUrls(outgoingUrls);
-    }
-
-    private static Set<String> extractUrlInCssText(String input) {
-
-        Set<String> extractedUrls = new HashSet<>();
-        if (input == null || input.isEmpty()) {
-            return extractedUrls;
-        }
-
-        Matcher matcher = pattern.matcher(input);
-        while (matcher.find()) {
-            String url = matcher.group(1);
-            if (url == null) {
-                url = matcher.group(2);
-            }
-            if (url == null) {
-                url = matcher.group(3);
-            }
-            if (url == null || StringUtils.startsWithAny(url, "data:", "'data:", "\"data:")) { // test for incomplete matches as well
-                continue;
-            }
-            extractedUrls.add(url);
-        }
-
-
-        return extractedUrls;
-    }
-
-    private static final Pattern pattern = initializePattern();
-
-    private static Pattern initializePattern() {
-        return Pattern.compile("url\\(\\s*'([^\\)]+)'\\s*\\)" +     // url('...')
-                "|url\\(\\s*\"([^\\)]+)\"\\s*\\)" +                  // url("...")
-                "|url\\(\\s*([^\\)]+)\\s*\\)" +                       // url(...)
-                "|\\/\\*(\\*(?!\\/)|[^*])*\\*\\/");                 // ignore comments
-    }
-
+	
+	private final WebURLFactory factory;
+	private final BasicURLNormalizer normalizer;
+	
+	
+	public CssParseData(final WebURLFactory webURLFactory, final BasicURLNormalizer normalizer) {
+		this.factory = webURLFactory;
+		this.normalizer = normalizer;
+	}
+	
+	
+	public void setOutgoingUrls(final WebURL referringPage) {
+		final Set<WebURL> outgoingUrls = parseOutgoingUrls(referringPage);
+		this.setOutgoingUrls(outgoingUrls);
+	}
+	
+	private Set<WebURL> parseOutgoingUrls(final WebURL referringPage) {
+		
+		final Set<String> seedUrls = extractSeedUrlsFromCss(this.getTextContent(), referringPage);
+		
+		final Set<WebURL> outgoingUrls = new HashSet<>();
+		for (final String seedUrl : seedUrls) {
+			final WebURL webURL = factory.newWebUrl();
+			webURL.setURL(seedUrl);
+			outgoingUrls.add(webURL);
+		}
+		return outgoingUrls;
+	}
+	
+	private Set<String> extractSeedUrlsFromCss(final String input, final WebURL referringPage) {
+		if (input == null || input.isEmpty()) {
+			return new HashSet<>();
+		}
+		
+		final CascadingStyleSheet css = CSSReader.readFromString(input, ECSSVersion.LATEST);
+		final CssUrlExtractVisitor cssVisitor = new CssUrlExtractVisitor(referringPage.getURL(), normalizer);
+		
+		CSSVisitor.visitCSSUrl(css, cssVisitor);
+		return cssVisitor.getSeedUrls();
+	}
 }
