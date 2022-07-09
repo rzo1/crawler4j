@@ -75,6 +75,7 @@ import edu.uci.ics.crawler4j.crawler.authentication.BasicAuthInfo;
 import edu.uci.ics.crawler4j.crawler.authentication.FormAuthInfo;
 import edu.uci.ics.crawler4j.crawler.authentication.NtAuthInfo;
 import edu.uci.ics.crawler4j.crawler.exceptions.PageBiggerThanMaxSizeException;
+import edu.uci.ics.crawler4j.url.UrlResolver;
 import edu.uci.ics.crawler4j.url.WebURL;
 
 /**
@@ -279,7 +280,7 @@ public class PageFetcher {
 
                 Header header = response.getFirstHeader(HttpHeaders.LOCATION);
                 if (header != null) {
-                    String movedToUrl = normalizer.filter(header.getValue());
+                    String movedToUrl = normalizer.filter(UrlResolver.resolveUrl(toFetchURL, header.getValue()));
                     fetchResult.setMovedToUrl(movedToUrl);
                 }
             } else if (statusCode >= 200 && statusCode <= 299) { // is 2XX, everything looks ok
