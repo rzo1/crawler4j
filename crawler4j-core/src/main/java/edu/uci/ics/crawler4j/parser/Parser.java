@@ -51,6 +51,7 @@ public class Parser {
     private final Net net;
     private final WebURLFactory factory;
     private final BasicURLNormalizer normalizer;
+    
     public Parser(CrawlConfig config, BasicURLNormalizer normalizer, TLDList tldList, WebURLFactory webURLFactory) throws IOException {
         this(config, normalizer, new TikaHtmlParser(config, normalizer, tldList, webURLFactory), tldList, webURLFactory);
     }
@@ -68,7 +69,7 @@ public class Parser {
 
     public void parse(Page page, String contextURL) throws NotAllowedContentException, ParseException {
         if (Util.hasBinaryContent(page.getContentType())) { // BINARY
-            BinaryParseData parseData = new BinaryParseData();
+            BinaryParseData parseData = createBinaryParseData();
             if (config.isIncludeBinaryContentInCrawling()) {
                 if (config.isProcessBinaryContentInCrawling()) {
                     try {
@@ -93,7 +94,7 @@ public class Parser {
             }
         } else if (Util.hasCssTextContent(page.getContentType())) { // text/css
             try {
-                CssParseData parseData = new CssParseData(factory, normalizer);
+                CssParseData parseData = createCssParseData();
                 if (page.getContentCharset() == null) {
                     parseData.setTextContent(new String(page.getContentData(), StandardCharsets.UTF_8));
                 } else {
@@ -108,7 +109,7 @@ public class Parser {
             }
         } else if (Util.hasPlainTextContent(page.getContentType())) { // plain Text
             try {
-                TextParseData parseData = new TextParseData();
+                TextParseData parseData = createTextParseData();
                 if (page.getContentCharset() == null) {
                     parseData.setTextContent(new String(page.getContentData(), StandardCharsets.UTF_8));
                 } else {
@@ -123,7 +124,7 @@ public class Parser {
             }
         } else { // isHTML
 
-            HtmlParseData parsedData = this.htmlContentParser.parse(page, contextURL);
+            HtmlParseData parsedData = createHtmlParseData(page, contextURL);
 
             if (page.getContentCharset() == null) {
                 page.setContentCharset(parsedData.getContentCharset());
@@ -139,4 +140,46 @@ public class Parser {
             page.setParseData(parsedData);
         }
     }
+
+		/**
+		 * Open for extension
+		 */
+		protected BinaryParseData createBinaryParseData() {
+			return new BinaryParseData();
+		}
+		
+		/**
+		 * Open for extension
+		 */
+		protected CssParseData createCssParseData() {
+			return new CssParseData(getFactory(), getNormalizer());
+		}
+		
+		/**
+		 * Open for extension
+		 */
+		protected TextParseData createTextParseData() {
+			return new TextParseData();
+		}
+		
+		/**
+		 * Open for extension
+		 */
+		protected HtmlParseData createHtmlParseData(final Page page, final String contextURL)
+				throws ParseException
+		{
+			return getHtmlContentParser().parse(page, contextURL);
+		}
+		
+		protected WebURLFactory getFactory() {
+			return factory;
+		}
+		
+		protected BasicURLNormalizer getNormalizer() {
+			return normalizer;
+		}
+		
+		protected HtmlParser getHtmlContentParser() {
+			return htmlContentParser;
+		}
 }
