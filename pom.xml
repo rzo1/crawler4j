@@ -114,7 +114,7 @@
         <junit.version>4.13.2</junit.version>
         <wiremock.version>2.27.2</wiremock.version>
         <spock.version>2.1-groovy-3.0</spock.version>
-        <groovy.version>3.0.11</groovy.version>
+        <groovy.version>3.0.12</groovy.version>
 
         <!-- Maven plugin version -->
         <maven.source.version>3.2.1</maven.source.version>
