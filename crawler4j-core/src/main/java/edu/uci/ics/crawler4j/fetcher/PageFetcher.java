@@ -20,33 +20,22 @@
 package edu.uci.ics.crawler4j.fetcher;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
-import crawlercommons.filters.basic.BasicURLNormalizer;
-import edu.uci.ics.crawler4j.PolitenessServer;
-import edu.uci.ics.crawler4j.fetcher.politeness.CachedPolitenessServer;
-import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.Credentials;
-import org.apache.hc.client5.http.auth.NTCredentials;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -60,21 +49,21 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.config.Registry;
 import org.apache.hc.core5.http.config.RegistryBuilder;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import crawlercommons.filters.basic.BasicURLNormalizer;
+import edu.uci.ics.crawler4j.PolitenessServer;
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.authentication.AuthInfo;
-import edu.uci.ics.crawler4j.crawler.authentication.BasicAuthInfo;
+import edu.uci.ics.crawler4j.crawler.authentication.CredentialsProvider;
 import edu.uci.ics.crawler4j.crawler.authentication.FormAuthInfo;
-import edu.uci.ics.crawler4j.crawler.authentication.NtAuthInfo;
 import edu.uci.ics.crawler4j.crawler.exceptions.PageBiggerThanMaxSizeException;
+import edu.uci.ics.crawler4j.fetcher.politeness.CachedPolitenessServer;
 import edu.uci.ics.crawler4j.url.UrlResolver;
 import edu.uci.ics.crawler4j.url.WebURL;
 
@@ -159,10 +148,9 @@ public class PageFetcher {
         List<AuthInfo> authInfos = config.getAuthInfos();
         if (authInfos != null) {
             for (AuthInfo authInfo : authInfos) {
-                if (AuthInfo.AuthenticationType.BASIC_AUTHENTICATION.equals(authInfo.getAuthenticationType())) {
-                    addBasicCredentials((BasicAuthInfo) authInfo, credentialsMap);
-                } else if (AuthInfo.AuthenticationType.NT_AUTHENTICATION.equals(authInfo.getAuthenticationType())) {
-                    addNtCredentials((NtAuthInfo) authInfo, credentialsMap);
+                if (authInfo instanceof CredentialsProvider) {
+                    CredentialsProvider credentialsProvider = (CredentialsProvider) authInfo;
+                    credentialsProvider.addCredentials(credentialsMap);
                 }
             }
 
@@ -177,7 +165,7 @@ public class PageFetcher {
                     .filter(info ->
                             AuthInfo.AuthenticationType.FORM_AUTHENTICATION.equals(info.getAuthenticationType()))
                     .map(FormAuthInfo.class::cast)
-                    .forEach(this::doFormLogin);
+                    .forEach(t -> t.doFormLogin(httpClient));
         } else {
             httpClient = clientBuilder.build();
         }
@@ -186,66 +174,6 @@ public class PageFetcher {
             connectionMonitorThread = new IdleConnectionMonitorThread(connectionManager);
         }
         connectionMonitorThread.start();
-    }
-
-    /**
-     * BASIC authentication<br/>
-     * Official Example: https://hc.apache.org/httpcomponents-client-ga/httpclient/examples/org
-     * /apache/http/examples/client/ClientAuthentication.java
-     */
-    private void addBasicCredentials(BasicAuthInfo authInfo,
-                                     Map<AuthScope, Credentials> credentialsMap) {
-        logger.info("BASIC authentication for: {}", authInfo.getLoginTarget());
-        Credentials credentials = new UsernamePasswordCredentials(authInfo.getUsername(),
-                authInfo.getPassword().toCharArray());
-        credentialsMap.put(new AuthScope(authInfo.getHost(), authInfo.getPort()), credentials);
-    }
-
-    /**
-     * Do NT auth for Microsoft AD sites.
-     */
-    private void addNtCredentials(NtAuthInfo authInfo, Map<AuthScope, Credentials> credentialsMap) {
-        logger.info("NT authentication for: {}", authInfo.getLoginTarget());
-        try {
-            Credentials credentials = new NTCredentials(authInfo.getUsername(),
-                    authInfo.getPassword().toCharArray(), InetAddress.getLocalHost().getHostName(),
-                    authInfo.getDomain());
-            credentialsMap.put(new AuthScope(authInfo.getHost(), authInfo.getPort()), credentials);
-        } catch (UnknownHostException e) {
-            logger.error("Error creating NT credentials", e);
-        }
-    }
-
-    /**
-     * FORM authentication<br/>
-     * Official Example: https://hc.apache.org/httpcomponents-client-ga/httpclient/examples/org
-     * /apache/http/examples/client/ClientFormLogin.java
-     */
-    private void doFormLogin(FormAuthInfo authInfo) {
-        logger.info("FORM authentication for: {}", authInfo.getLoginTarget());
-        String fullUri =
-                authInfo.getProtocol() + "://" + authInfo.getHost() + ":" + authInfo.getPort() +
-                        authInfo.getLoginTarget();
-        HttpPost httpPost = new HttpPost(fullUri);
-        List<NameValuePair> formParams = new ArrayList<>();
-        formParams.add(
-                new BasicNameValuePair(authInfo.getUsernameFormStr(), authInfo.getUsername()));
-        formParams.add(
-                new BasicNameValuePair(authInfo.getPasswordFormStr(), authInfo.getPassword()));
-        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formParams, StandardCharsets.UTF_8);
-        httpPost.setEntity(entity);
-
-        try {
-            httpClient.execute(httpPost);
-            logger.debug("Successfully request to login in with user: {} to: {}", authInfo.getUsername(),
-                    authInfo.getHost());
-        } catch (ClientProtocolException e) {
-            logger.error("While trying to login to: {} - Client protocol not supported",
-                    authInfo.getHost(), e);
-        } catch (IOException e) {
-            logger.error("While trying to login to: {} - Error making request", authInfo.getHost(),
-                    e);
-        }
     }
 
     public PageFetchResult fetchPage(WebURL webUrl)

@@ -20,8 +20,15 @@
 package edu.uci.ics.crawler4j.crawler.authentication;
 
 import java.net.MalformedURLException;
+import java.util.Map;
 
 import javax.swing.text.html.FormSubmitEvent.MethodType;
+
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.Credentials;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Avi Hayun on 11/25/2014.
@@ -37,8 +44,10 @@ import javax.swing.text.html.FormSubmitEvent.MethodType;
  *  </li>
  * </ul>
  */
-public class BasicAuthInfo extends AuthInfo {
-
+public class BasicAuthInfo extends AuthInfo implements CredentialsProvider {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(BasicAuthInfo.class);
+	
     /**
      * Constructor
      *
@@ -52,5 +61,18 @@ public class BasicAuthInfo extends AuthInfo {
         throws MalformedURLException {
         super(AuthenticationType.BASIC_AUTHENTICATION, MethodType.GET, loginUrl, username,
               password);
+    }
+    
+    
+    
+    /**
+     * BASIC authentication<br/>
+     * Official Example: https://hc.apache.org/httpcomponents-client-ga/httpclient/examples/org
+     * /apache/http/examples/client/ClientAuthentication.java
+     */
+    public void addCredentials(Map<AuthScope, Credentials> credentialsMap) {
+        LOGGER.info("BASIC authentication for: {}", getLoginTarget());
+        Credentials credentials = new UsernamePasswordCredentials(getUsername(), getPassword().toCharArray());
+        credentialsMap.put(new AuthScope(getHost(), getPort()), credentials);
     }
 }

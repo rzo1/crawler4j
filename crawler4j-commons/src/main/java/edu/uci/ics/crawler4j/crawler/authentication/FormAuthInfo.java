@@ -19,9 +19,22 @@
  */
 package edu.uci.ics.crawler4j.crawler.authentication;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.text.html.FormSubmitEvent.MethodType;
+
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Avi Hayun on 11/25/2014.
@@ -34,7 +47,9 @@ import javax.swing.text.html.FormSubmitEvent.MethodType;
  * username and password into an HTML form
  */
 public class FormAuthInfo extends AuthInfo {
-
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(FormAuthInfo.class);
+    
     private String usernameFormStr;
     private String passwordFormStr;
 
@@ -84,5 +99,39 @@ public class FormAuthInfo extends AuthInfo {
      */
     public void setPasswordFormStr(String passwordFormStr) {
         this.passwordFormStr = passwordFormStr;
+    }
+    
+    
+    /**
+     * FORM authentication<br/>
+     * Official Example: https://hc.apache.org/httpcomponents-client-ga/httpclient/examples/org
+     * /apache/http/examples/client/ClientFormLogin.java
+     */
+    public void doFormLogin(final CloseableHttpClient httpClient) {
+        LOGGER.info("FORM authentication for: {}", getLoginTarget());
+        String fullUri = getProtocol() + "://" + getHost() + ":" + getPort() + getLoginTarget();
+        HttpPost httpPost = new HttpPost(fullUri);
+        List<NameValuePair> formParams = createFormParams();
+        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formParams, StandardCharsets.UTF_8);
+        httpPost.setEntity(entity);
+
+        try {
+            httpClient.execute(httpPost);
+            LOGGER.debug("Successfully request to login in with user: {} to: {}", getUsername(), getHost());
+        } catch (ClientProtocolException e) {
+            LOGGER.error("While trying to login to: {} - Client protocol not supported", getHost(), e);
+        } catch (IOException e) {
+            LOGGER.error("While trying to login to: {} - Error making request", getHost(), e);
+        }
+    }
+
+    /**
+     * Open for extension.
+     */
+    protected List<NameValuePair> createFormParams() {
+        List<NameValuePair> formParams = new ArrayList<>();
+        formParams.add(new BasicNameValuePair(getUsernameFormStr(), getUsername()));
+        formParams.add(new BasicNameValuePair(getPasswordFormStr(), getPassword()));
+        return formParams;
     }
 }
