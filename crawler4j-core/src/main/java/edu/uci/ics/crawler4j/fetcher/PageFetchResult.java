@@ -33,7 +33,7 @@ import edu.uci.ics.crawler4j.crawler.Page;
 /**
  * @author Yasser Ganjisaffar
  */
-public class PageFetchResult {
+public class PageFetchResult implements AutoCloseable {
 
     protected static final Logger logger = LoggerFactory.getLogger(PageFetchResult.class);
 
@@ -98,11 +98,16 @@ public class PageFetchResult {
         return false;
     }
 
+    @Override
+    public void close()
+    	throws Exception
+    {
+        discardContentIfNotConsumed();
+    }
+    
     public void discardContentIfNotConsumed() {
         try {
-            if (entity != null) {
-                EntityUtils.consume(entity);
-            }
+            EntityUtils.consume(entity);
         } catch (IOException ignored) {
             // We can EOFException (extends IOException) exception. It can happen on compressed
             // streams which are not

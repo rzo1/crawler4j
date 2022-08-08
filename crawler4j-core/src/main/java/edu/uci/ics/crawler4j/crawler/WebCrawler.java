@@ -21,13 +21,10 @@ package edu.uci.ics.crawler4j.crawler;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import edu.uci.ics.crawler4j.frontier.DocIDServer;
-import edu.uci.ics.crawler4j.frontier.Frontier;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.impl.EnglishReasonPhraseCatalog;
 import org.slf4j.Logger;
@@ -35,12 +32,12 @@ import org.slf4j.LoggerFactory;
 
 import edu.uci.ics.crawler4j.crawler.exceptions.ContentFetchException;
 import edu.uci.ics.crawler4j.crawler.exceptions.PageBiggerThanMaxSizeException;
-import edu.uci.ics.crawler4j.crawler.exceptions.ParseException;
 import edu.uci.ics.crawler4j.fetcher.PageFetchResult;
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
+import edu.uci.ics.crawler4j.frontier.DocIDServer;
+import edu.uci.ics.crawler4j.frontier.Frontier;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.parser.NotAllowedContentException;
-import edu.uci.ics.crawler4j.parser.ParseData;
 import edu.uci.ics.crawler4j.parser.Parser;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 import edu.uci.ics.crawler4j.url.WebURL;
@@ -165,7 +162,7 @@ public class WebCrawler implements Runnable {
      * overridden by sub-classes to perform custom logic for different status
      * codes. For example, 404 pages can be logged, etc.
      *
-     * @param webUrl            WebUrl containing the statusCode
+     * @param webUrl            fetched WebUrl
      * @param statusCode        Html Status Code number
      * @param statusDescription Html Status COde description
      */
@@ -236,24 +233,23 @@ public class WebCrawler implements Runnable {
      * This function is called if the content of a url could not be fetched.
      *
      * @param webUrl URL which content failed to be fetched
-     * @deprecated use {@link #onContentFetchError(Page)}
      */
-    @Deprecated(forRemoval = true)
     protected void onContentFetchError(WebURL webUrl) {
         logger.warn("Can't fetch content of: {}", webUrl.getURL());
         // Do nothing by default (except basic logging)
         // Sub-classed can override this to add their custom functionality
     }
-
+    
     /**
-     * This function is called if the content of a url could not be fetched.
+     * This function is called if there has been an error in parsing the content.
      *
-     * @param page Partial page object
+     * @param webUrl URL which failed on parsing
      */
-    protected void onContentFetchError(Page page) {
-        logger.warn("Can't fetch content of: {}", page.getWebURL().getURL());
-        // Do nothing by default (except basic logging)
-        // Sub-classed can override this to add their custom functionality
+    protected void onParseError(WebURL webUrl, Exception e) {
+    	logger.warn("Parsing error for \"{}\" ({})", webUrl.getURL(), e.getMessage());
+    	logger.info("Stacktrace: ", e);
+    	// Do nothing by default (except basic logging)
+    	// Sub-classed can override this to add their custom functionality
     }
 
     /**
@@ -272,28 +268,7 @@ public class WebCrawler implements Runnable {
             // Sub-classed can override this to add their custom functionality
         }
     }
-
-    /**
-     * This function is called if there has been an error in parsing the content.
-     *
-     * @param webUrl URL which failed on parsing
-     */
-    protected void onParseError(WebURL webUrl, ParseException e) {
-        onParseError(webUrl);
-    }
-
-    /**
-     * This function is called if there has been an error in parsing the content.
-     *
-     * @param webUrl URL which failed on parsing
-     */
-    @Deprecated(forRemoval = true)
-    protected void onParseError(WebURL webUrl) {
-        logger.warn("Parsing error of: {}", webUrl.getURL());
-        // Do nothing by default (Except logging)
-        // Sub-classed can override this to add their custom functionality
-    }
-
+    
     /**
      * The CrawlController instance that has created this crawler instance will
      * call this function just before terminating this crawler thread. Classes
@@ -335,8 +310,11 @@ public class WebCrawler implements Runnable {
                         }
                         if (curURL != null) {
                             curURL = handleUrlBeforeProcess(curURL);
-                            processPage(curURL);
-                            frontier.setProcessed(curURL);
+                            if (curURL != null) {
+                                boolean processedSuccess = processPage(curURL);
+                                // TODO set the processed status from SCHEDULED to COMPLETED or IN_ERROR
+                                frontier.setProcessed(curURL);
+                            }
                         }
                     }
                 }
@@ -405,184 +383,187 @@ public class WebCrawler implements Runnable {
         // Sub-classed should override this to add their custom functionality
     }
 
-    private void processPage(WebURL curURL) {
-        PageFetchResult fetchResult = null;
-        Page page = new Page(curURL);
-        try {
-            if (curURL == null) {
-                return;
-            }
+		/**
+		 * @param curURL not null
+		 * @return true if processed correctly, false otherwise
+		 */
+		private boolean processPage(WebURL curURL) {
+			try (PageFetchResult fetchResult = pageFetcher.fetchPage(curURL)) {
+				Page page = new Page(curURL);
+				int statusCode = fetchResult.getStatusCode();
+				
+				handlePageStatusCode(curURL, statusCode,
+						EnglishReasonPhraseCatalog.INSTANCE.getReason(statusCode, Locale.ENGLISH));
+				
+				// Finds the status reason for all known statuses
+				
+				page.setFetchResponseHeaders(fetchResult.getResponseHeaders());
+				page.setStatusCode(statusCode);
+				
+				
+				if (statusCode < HttpStatus.SC_SUCCESS || statusCode > 299) { // Not 2XX: 2XX status codes indicate success
+					if (statusCode == HttpStatus.SC_MOVED_PERMANENTLY //
+							|| statusCode == HttpStatus.SC_MOVED_TEMPORARILY //
+							|| statusCode == HttpStatus.SC_MULTIPLE_CHOICES //
+							|| statusCode == HttpStatus.SC_SEE_OTHER //
+							|| statusCode == HttpStatus.SC_TEMPORARY_REDIRECT //
+							|| statusCode == HttpStatus.SC_PERMANENT_REDIRECT //
+					) { // is 3xx  todo
+						// follow https://issues.apache.org/jira/browse/HTTPCORE-389
+						return processFetchResultRedirect(fetchResult, page);
+					} else { // All other http codes other than 3xx & 200
+						String description = EnglishReasonPhraseCatalog.INSTANCE.getReason(//
+								fetchResult.getStatusCode(), Locale.ENGLISH); // Finds the status reason for all known statuses
+						String contentType = fetchResult.getEntity() == null ? "" //
+								: fetchResult.getEntity().getContentType() == null ? "" //
+										: fetchResult.getEntity().getContentType();
+						onUnexpectedStatusCode(curURL.getURL(), fetchResult.getStatusCode(), contentType, description);
+						return false;
+					}
+				} else { // if status code is 200
+					return handleFetchResultSuccess(fetchResult, page);
+				}
+			} catch (PageBiggerThanMaxSizeException e) {
+				onPageBiggerThanMaxSize(curURL.getURL(), e.getPageSize());
+			} catch (ContentFetchException | SocketTimeoutException cfe) {
+				onContentFetchError(curURL);
+			} catch (Exception e) {
+				onUnhandledException(curURL, e);
+			}
+			return false;
+		}
 
-            fetchResult = pageFetcher.fetchPage(curURL);
-            int statusCode = fetchResult.getStatusCode();
+		private boolean handleFetchResultSuccess(final PageFetchResult fetchResult, final Page page)
+				throws IOException,
+				ContentFetchException,
+				InterruptedException
+		{
+			final WebURL curURL = page.getWebURL();
+			
+			if (!curURL.getURL().equals(fetchResult.getFetchedUrl())) {
+				if (docIdServer.isSeenBefore(fetchResult.getFetchedUrl())) {
+					logger.debug("Redirect page: {} has already been seen", curURL);
+					return true;
+				}
+				curURL.setURL(fetchResult.getFetchedUrl());
+				curURL.setDocid(docIdServer.getNewDocID(fetchResult.getFetchedUrl()));
+			}
+			
+			if (!fetchResult.fetchContent(page, myController.getConfig().getMaxDownloadSize())) {
+				throw new ContentFetchException();
+			}
+			
+			if (page.isTruncated()) {
+				logger.warn("Warning: unknown page size exceeded max-download-size, truncated to: ({}), at URL: {}",
+						myController.getConfig().getMaxDownloadSize(), curURL.getURL());
+			}
+			
+			try {
+				// TODO Passing content from first parameter as second parameter is confusing.
+				parser.parse(page, curURL.getURL());
+			} catch (NotAllowedContentException e) {
+				logger.debug("Skipping: {} (typically binary content configured not to crawl)", curURL.getURL());
+				return true;
+			} catch (Exception e) {
+				onParseError(curURL, e);
+				return false;
+			}
+			
+			if (shouldFollowLinksIn(page.getWebURL())) {
+				scheduleOutgoingUrls(curURL, page);
+			} else {
+				logger.debug("Not looking for links in page {}, " + "as per your \"shouldFollowLinksInPage\" policy",
+						page.getWebURL().getURL());
+			}
+			
+			boolean noIndex = myController.getConfig().isRespectNoIndex() && hasMetaRobotsNoindex(page);
+			if (!noIndex) {
+				visit(page);
+			}
+			return true;
+		}
 
-            try {
-                handlePageStatusCode(curURL, statusCode,
-                        EnglishReasonPhraseCatalog.INSTANCE.getReason(statusCode,
-                                Locale.ENGLISH));
-            }catch (IllegalArgumentException e) {
-                onUnhandledException(curURL, e);
-            }
-            // Finds the status reason for all known statuses
+		private void scheduleOutgoingUrls(WebURL curURL, Page page)
+				throws InterruptedException
+		{
+			List<WebURL> toSchedule = new ArrayList<>();
+			int maxCrawlDepth = myController.getConfig().getMaxDepthOfCrawling();
+			for (WebURL webURL : page.getParseData().getOutgoingUrls()) {
+				webURL.setParentDocid(curURL.getDocid());
+				webURL.setParentUrl(curURL.getURL());
+				int newdocid = docIdServer.getDocId(webURL.getURL());
+				if (newdocid > 0) {
+					// This is not the first time that this Url is visited. So, we set the
+					// depth to a negative number.
+					webURL.setDepth((short) -1);
+					webURL.setDocid(newdocid);
+				} else {
+					webURL.setDocid(-1);
+					webURL.setDepth((short) (curURL.getDepth() + 1));
+					if (maxCrawlDepth == -1 || curURL.getDepth() < maxCrawlDepth) {
+						if (shouldVisit(page, webURL)) {
+							if (robotstxtServer.allows(webURL)) {
+								webURL.setDocid(docIdServer.getNewDocID(webURL.getURL()));
+								toSchedule.add(webURL);
+							} else {
+								logger.debug("Not visiting: {} as per the server's \"robots.txt\" " + "policy", webURL.getURL());
+							}
+						} else {
+							logger.debug("Not visiting: {} as per your \"shouldVisit\" policy", webURL.getURL());
+						}
+					}
+				}
+			}
+			frontier.scheduleAll(toSchedule);
+		}
 
-            page.setFetchResponseHeaders(fetchResult.getResponseHeaders());
-            page.setStatusCode(statusCode);
-            if (statusCode < 200 ||
-                    statusCode > 299) { // Not 2XX: 2XX status codes indicate success
-                if (statusCode == HttpStatus.SC_MOVED_PERMANENTLY ||
-                        statusCode == HttpStatus.SC_MOVED_TEMPORARILY ||
-                        statusCode == HttpStatus.SC_MULTIPLE_CHOICES ||
-                        statusCode == HttpStatus.SC_SEE_OTHER ||
-                        statusCode == HttpStatus.SC_TEMPORARY_REDIRECT ||
-                        statusCode == 308) { // is 3xx  todo
-                    // follow https://issues.apache.org/jira/browse/HTTPCORE-389
+		private boolean hasMetaRobotsNoindex(Page page) {
+			return page.getContentType() != null //
+					&& page.getContentType().contains("html") //
+					&& ((HtmlParseData) page.getParseData()).getMetaTagValue("robots").contains("noindex");
+		}
 
-                    page.setRedirect(true);
-
-                    String movedToUrl = fetchResult.getMovedToUrl();
-                    if (movedToUrl == null) {
-                        onRedirectedToInvalidUrl(page);
-                        return;
-                    }
-                    page.setRedirectedToUrl(movedToUrl);
-                    onRedirectedStatusCode(page);
-
-                    if (myController.getConfig().isFollowRedirects()) {
-                        int newDocId = docIdServer.getDocId(movedToUrl);
-                        if (newDocId > 0) {
-                            logger.debug("Redirect page: {} is already seen", curURL);
-                            return;
-                        }
-
-                        WebURL webURL = myController.getWebURLFactory().newWebUrl();
-                        webURL.setTldList(myController.getTldList());
-                        webURL.setURL(movedToUrl);
-                        webURL.setParentDocid(curURL.getParentDocid());
-                        webURL.setParentUrl(curURL.getParentUrl());
-                        webURL.setDepth(curURL.getDepth());
-                        webURL.setDocid(-1);
-                        webURL.setAnchor(curURL.getAnchor());
-                        if (shouldVisit(page, webURL)) {
-                            if (!shouldFollowLinksIn(webURL) || robotstxtServer.allows(webURL)) {
-                                webURL.setDocid(docIdServer.getNewDocID(movedToUrl));
-                                frontier.schedule(webURL);
-                            } else {
-                                logger.debug(
-                                        "Not visiting: {} as per the server's \"robots.txt\" policy",
-                                        webURL.getURL());
-                            }
-                        } else {
-                            logger.debug("Not visiting: {} as per your \"shouldVisit\" policy",
-                                    webURL.getURL());
-                        }
-                    }
-                } else { // All other http codes other than 3xx & 200
-                    String description =
-                            EnglishReasonPhraseCatalog.INSTANCE.getReason(fetchResult.getStatusCode(),
-                                    Locale.ENGLISH); // Finds
-                    // the status reason for all known statuses
-                    String contentType = fetchResult.getEntity() == null ? "" :
-                            fetchResult.getEntity().getContentType() == null ? "" :
-                                    fetchResult.getEntity().getContentType();
-                    onUnexpectedStatusCode(curURL.getURL(), fetchResult.getStatusCode(),
-                            contentType, description);
-                }
-
-            } else { // if status code is 200
-                if (!curURL.getURL().equals(fetchResult.getFetchedUrl())) {
-                    if (docIdServer.isSeenBefore(fetchResult.getFetchedUrl())) {
-                        logger.debug("Redirect page: {} has already been seen", curURL);
-                        return;
-                    }
-                    curURL.setURL(fetchResult.getFetchedUrl());
-                    curURL.setDocid(docIdServer.getNewDocID(fetchResult.getFetchedUrl()));
-                }
-
-                if (!fetchResult.fetchContent(page,
-                        myController.getConfig().getMaxDownloadSize())) {
-                    throw new ContentFetchException();
-                }
-
-                if (page.isTruncated()) {
-                    logger.warn(
-                            "Warning: unknown page size exceeded max-download-size, truncated to: " +
-                                    "({}), at URL: {}",
-                            myController.getConfig().getMaxDownloadSize(), curURL.getURL());
-                }
-
-                parser.parse(page, curURL.getURL());
-
-                if (shouldFollowLinksIn(page.getWebURL())) {
-                    ParseData parseData = page.getParseData();
-                    List<WebURL> toSchedule = new ArrayList<>();
-                    int maxCrawlDepth = myController.getConfig().getMaxDepthOfCrawling();
-                    for (WebURL webURL : parseData.getOutgoingUrls()) {
-                        webURL.setParentDocid(curURL.getDocid());
-                        webURL.setParentUrl(curURL.getURL());
-                        int newdocid = docIdServer.getDocId(webURL.getURL());
-                        if (newdocid > 0) {
-                            // This is not the first time that this Url is visited. So, we set the
-                            // depth to a negative number.
-                            webURL.setDepth((short) -1);
-                            webURL.setDocid(newdocid);
-                        } else {
-                            webURL.setDocid(-1);
-                            webURL.setDepth((short) (curURL.getDepth() + 1));
-                            if ((maxCrawlDepth == -1) || (curURL.getDepth() < maxCrawlDepth)) {
-                                if (shouldVisit(page, webURL)) {
-                                    if (robotstxtServer.allows(webURL)) {
-                                        webURL.setDocid(docIdServer.getNewDocID(webURL.getURL()));
-                                        toSchedule.add(webURL);
-                                    } else {
-                                        logger.debug(
-                                                "Not visiting: {} as per the server's \"robots.txt\" " +
-                                                        "policy", webURL.getURL());
-                                    }
-                                } else {
-                                    logger.debug(
-                                            "Not visiting: {} as per your \"shouldVisit\" policy",
-                                            webURL.getURL());
-                                }
-                            }
-                        }
-                    }
-                    frontier.scheduleAll(toSchedule);
-                } else {
-                    logger.debug("Not looking for links in page {}, "
-                                    + "as per your \"shouldFollowLinksInPage\" policy",
-                            page.getWebURL().getURL());
-                }
-
-                boolean noIndex = myController.getConfig().isRespectNoIndex() &&
-                        page.getContentType() != null &&
-                        page.getContentType().contains("html") &&
-                        ((HtmlParseData) page.getParseData())
-                                .getMetaTagValue("robots").
-                                contains("noindex");
-
-                if (!noIndex) {
-                    visit(page);
-                }
-            }
-        } catch (PageBiggerThanMaxSizeException e) {
-            onPageBiggerThanMaxSize(curURL.getURL(), e.getPageSize());
-        } catch (ParseException pe) {
-            onParseError(curURL, pe);
-        } catch (ContentFetchException | SocketTimeoutException cfe) {
-            onContentFetchError(curURL);
-            onContentFetchError(page);
-        } catch (NotAllowedContentException nace) {
-            logger.debug(
-                    "Skipping: {} as it contains binary content which you configured not to crawl",
-                    curURL.getURL());
-        } catch (IOException | InterruptedException | URISyntaxException | RuntimeException e) {
-            onUnhandledException(curURL, e);
-        } finally {
-            if (fetchResult != null) {
-                fetchResult.discardContentIfNotConsumed();
-            }
-        }
-    }
+		private boolean processFetchResultRedirect(final PageFetchResult fetchResult, final Page page)
+				throws InterruptedException
+		{
+			WebURL curURL = page.getWebURL();
+			page.setRedirect(true);
+			
+			String movedToUrl = fetchResult.getMovedToUrl();
+			if (movedToUrl == null) {
+				onRedirectedToInvalidUrl(page);
+				return false;
+			}
+			page.setRedirectedToUrl(movedToUrl);
+			onRedirectedStatusCode(page);
+			
+			if (myController.getConfig().isFollowRedirects()) {
+				if (docIdServer.isSeenBefore(movedToUrl)) {
+					logger.debug("Redirect page: {} is already seen", curURL);
+					return true;
+				}
+				
+				WebURL webURL = myController.getWebURLFactory().newWebUrl();
+				webURL.setTldList(myController.getTldList());
+				webURL.setURL(movedToUrl);
+				webURL.setParentDocid(curURL.getParentDocid());
+				webURL.setParentUrl(curURL.getParentUrl());
+				webURL.setDepth(curURL.getDepth());
+				webURL.setDocid(-1);
+				webURL.setAnchor(curURL.getAnchor());
+				if (shouldVisit(page, webURL)) {
+					if (!shouldFollowLinksIn(webURL) || robotstxtServer.allows(webURL)) {
+						webURL.setDocid(docIdServer.getNewDocID(movedToUrl));
+						frontier.schedule(webURL);
+					} else {
+						logger.debug("Not visiting: {} as per the server's \"robots.txt\" policy", webURL.getURL());
+					}
+				} else {
+					logger.debug("Not visiting: {} as per your \"shouldVisit\" policy", webURL.getURL());
+				}
+			}
+			return true;
+		}
 
     public Thread getThread() {
         return myThread;

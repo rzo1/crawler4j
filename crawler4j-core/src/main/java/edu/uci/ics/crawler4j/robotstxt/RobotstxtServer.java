@@ -142,8 +142,8 @@ public class RobotstxtServer {
                         status == HttpStatus.SC_MOVED_PERMANENTLY ||
                         status == HttpStatus.SC_MOVED_TEMPORARILY ||
                         status == HttpStatus.SC_SEE_OTHER ||
-                        status == HttpStatus.SC_TEMPORARY_REDIRECT || status == 308) &&
-                        // SC_PERMANENT_REDIRECT RFC7538
+                        status == HttpStatus.SC_TEMPORARY_REDIRECT ||
+                        status == HttpStatus.SC_PERMANENT_REDIRECT) &&
                         fetchResult.getMovedToUrl() != null) {
                     robotsTxtUrl.setURL(fetchResult.getMovedToUrl());
                     fetchResult.discardContentIfNotConsumed();

@@ -203,7 +203,7 @@ public class PageFetcher {
                     statusCode == HttpStatus.SC_MULTIPLE_CHOICES ||
                     statusCode == HttpStatus.SC_SEE_OTHER ||
                     statusCode == HttpStatus.SC_TEMPORARY_REDIRECT ||
-                    statusCode == 308) { // todo follow
+                    statusCode == HttpStatus.SC_PERMANENT_REDIRECT) { // todo follow
                 // https://issues.apache.org/jira/browse/HTTPCORE-389
 
                 Header header = response.getFirstHeader(HttpHeaders.LOCATION);
