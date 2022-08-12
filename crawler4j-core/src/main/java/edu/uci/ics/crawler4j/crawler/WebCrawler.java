@@ -234,8 +234,30 @@ public class WebCrawler implements Runnable {
      *
      * @param webUrl URL which content failed to be fetched
      */
+    protected void onContentFetchError(WebURL webUrl, Exception e) {
+        onContentFetchError(webUrl);
+    }
+    
+    /**
+     * This function is called if the content of a url could not be fetched.
+     *
+     * @param webUrl URL which content failed to be fetched
+     * @deprecated use {@link #onContentFetchError(WebURL, Exception)}
+     */
     protected void onContentFetchError(WebURL webUrl) {
         logger.warn("Can't fetch content of: {}", webUrl.getURL());
+        // Do nothing by default (except basic logging)
+        // Sub-classed can override this to add their custom functionality
+    }
+    
+    /**
+     * This function is called if the content of a url could not be fetched.
+     *
+     * @param page Partial page object
+     * @deprecated use {@link #onContentFetchError(WebURL, Exception)}
+     */
+    protected void onContentFetchError(Page page) {
+        logger.warn("Can't fetch content of: {}", page.getWebURL().getURL());
         // Do nothing by default (except basic logging)
         // Sub-classed can override this to add their custom functionality
     }
@@ -388,8 +410,8 @@ public class WebCrawler implements Runnable {
 		 * @return true if processed correctly, false otherwise
 		 */
 		private boolean processPage(WebURL curURL) {
+			final Page page = new Page(curURL);
 			try (PageFetchResult fetchResult = pageFetcher.fetchPage(curURL)) {
-				Page page = new Page(curURL);
 				int statusCode = fetchResult.getStatusCode();
 				
 				handlePageStatusCode(curURL, statusCode,
@@ -426,7 +448,8 @@ public class WebCrawler implements Runnable {
 			} catch (PageBiggerThanMaxSizeException e) {
 				onPageBiggerThanMaxSize(curURL.getURL(), e.getPageSize());
 			} catch (ContentFetchException | SocketTimeoutException cfe) {
-				onContentFetchError(curURL);
+				onContentFetchError(curURL, cfe);
+				onContentFetchError(page);
 			} catch (Exception e) {
 				onUnhandledException(curURL, e);
 			}
