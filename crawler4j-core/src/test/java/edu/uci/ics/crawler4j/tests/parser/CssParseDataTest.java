@@ -24,6 +24,7 @@ import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.parser.CssParseData;
 import edu.uci.ics.crawler4j.test.Crawler4jTestUtils;
 import edu.uci.ics.crawler4j.test.TestUtils;
@@ -99,7 +100,7 @@ public class CssParseDataTest {
 
         final CssParseData cssParseData = Crawler4jTestUtils.newCssParseData();
         cssParseData.setTextContent(cssText);
-        cssParseData.setOutgoingUrls(webURL);
+        cssParseData.parseAndSetOutgoingUrls(new Page(webURL));
         final Set<WebURL> outgoingUrls = cssParseData.getOutgoingUrls();
         assertNotNull(outgoingUrls);
         Assertions.assertThat(outgoingUrls).isEmpty();
@@ -110,7 +111,7 @@ public class CssParseDataTest {
 		
 		final CssParseData cssParseData = Crawler4jTestUtils.newCssParseData();
 		cssParseData.setTextContent(cssText);
-		cssParseData.setOutgoingUrls(webURL);
+		cssParseData.parseAndSetOutgoingUrls(new Page(webURL));
 		final Set<WebURL> outgoingUrls = cssParseData.getOutgoingUrls();
 		
 		Assertions.assertThat(outgoingUrls).hasSize(urls.length);

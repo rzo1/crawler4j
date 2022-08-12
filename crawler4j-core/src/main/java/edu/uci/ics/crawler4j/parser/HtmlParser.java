@@ -24,6 +24,15 @@ import edu.uci.ics.crawler4j.crawler.exceptions.ParseException;
 
 public interface HtmlParser {
 
-    HtmlParseData parse(Page page, String contextURL) throws ParseException;
+    default HtmlParseData parse(Page page) throws Exception {
+    	return parse(page, page.getWebURL().getURL());
+    }
+    
+    /**
+     * @deprecated implement {@link #parse(Page)}
+     */
+    default HtmlParseData parse(Page page, String contextURL) throws ParseException {
+    	throw new ParseException("At least one of the parse methods of the HtmlParser-interface should be implemented");
+    }
 
 }

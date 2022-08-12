@@ -30,6 +30,11 @@ public class ParseException extends Exception {
         super();
     }
 
+    
+    public ParseException(String message) {
+    	super(message);
+    }
+    
     public ParseException(Throwable cause) {
         super(cause);
     }

@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.url.WebURL;
 
 public class BinaryParseData implements ParseData {
@@ -66,6 +67,9 @@ public class BinaryParseData implements ParseData {
         context.set(Parser.class, AUTO_DETECT_PARSER);
     }
 
+    /**
+     * @deprecated Override {@link #parseBinaryContentAndSetHtml(Page)}
+     */
     public void setBinaryContent(byte[] data)
                 throws TransformerConfigurationException, TikaException, SAXException, IOException {
         InputStream inputStream = new ByteArrayInputStream(data);
@@ -82,6 +86,10 @@ public class BinaryParseData implements ParseData {
         } catch (TransformerConfigurationException | TikaException | SAXException | IOException | RuntimeException e) {
             throw e;
         }
+    }
+    
+    public void parseBinaryContentAndSetHtml(final Page page) throws Exception {
+        setBinaryContent(page.getContentData());
     }
 
     /**

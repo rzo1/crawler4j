@@ -45,6 +45,7 @@ import com.helger.css.decl.visit.CSSVisitor;
 import com.helger.css.reader.CSSReader;
 
 import crawlercommons.filters.basic.BasicURLNormalizer;
+import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.url.WebURL;
 import edu.uci.ics.crawler4j.url.WebURLFactory;
 
@@ -59,10 +60,16 @@ public class CssParseData extends TextParseData {
 		this.normalizer = normalizer;
 	}
 	
-	
+	/**
+	 * @deprecated override {@link #parseAndSetOutgoingUrls(WebURL)}
+	 */
 	public void setOutgoingUrls(final WebURL referringPage) {
 		final Set<WebURL> outgoingUrls = parseOutgoingUrls(referringPage);
 		this.setOutgoingUrls(outgoingUrls);
+	}
+	
+	public void parseAndSetOutgoingUrls(final Page page) {
+		setOutgoingUrls(page.getWebURL());
 	}
 	
 	private Set<WebURL> parseOutgoingUrls(final WebURL referringPage) {

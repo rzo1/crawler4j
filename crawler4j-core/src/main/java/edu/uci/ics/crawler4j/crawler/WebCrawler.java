@@ -409,7 +409,7 @@ public class WebCrawler implements Runnable {
 		 * @param curURL not null
 		 * @return true if processed correctly, false otherwise
 		 */
-		private boolean processPage(WebURL curURL) {
+		private boolean processPage(final WebURL curURL) {
 			final Page page = new Page(curURL);
 			try (PageFetchResult fetchResult = pageFetcher.fetchPage(curURL)) {
 				int statusCode = fetchResult.getStatusCode();
@@ -482,8 +482,7 @@ public class WebCrawler implements Runnable {
 			}
 			
 			try {
-				// TODO Passing content from first parameter as second parameter is confusing.
-				parser.parse(page, curURL.getURL());
+				parser.parse(page);
 			} catch (NotAllowedContentException e) {
 				logger.debug("Skipping: {} (typically binary content configured not to crawl)", curURL.getURL());
 				return true;

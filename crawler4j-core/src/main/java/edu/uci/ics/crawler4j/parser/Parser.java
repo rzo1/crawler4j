@@ -66,7 +66,16 @@ public class Parser {
         }
     }
 
+    public void parse(Page page)
+    		throws NotAllowedContentException,
+    		Exception
+    {
+    	parse(page, page.getWebURL().getURL());
+    }
+    
 		/**
+		 * @deprecated override/use {@link #parse(Page)}
+		 * 
 		 * @throws NotAllowedContentException thrown to enforce not handling the fetched content,
 		 * other exceptions are considered parse exceptions.
 		 */
@@ -82,13 +91,14 @@ public class Parser {
 				
 				BinaryParseData parseData = createBinaryParseData();
 				if (config.isProcessBinaryContentInCrawling()) {
-					parseData.setBinaryContent(page.getContentData());
+					parseData.parseBinaryContentAndSetHtml(page);
 				} else {
 					parseData.setHtml(Constants.EMPTY_HTML_TAGS);
 				}
 				
 				String html = parseData.getHtml();
-				Validate.validState(html != null, "BinaryParseData.setBinaryContent(...) should initialize the html value");
+				Validate.validState(html != null//
+						, "BinaryParseData.parseBinaryContentAndSetHtml(...) should initialize the html value");
 				parseData.setOutgoingUrls(net.extractUrls(html));
 				page.setParseData(parseData);
 				
@@ -96,7 +106,7 @@ public class Parser {
 				
 				CssParseData parseData = createCssParseData();
 				setTextContent(parseData, page);
-				parseData.setOutgoingUrls(page.getWebURL()); // parses outgoingUrls
+				parseData.parseAndSetOutgoingUrls(page);
 				page.setParseData(parseData);
 				
 			} else if (Util.hasPlainTextContent(page.getContentType())) { // plain Text
@@ -108,7 +118,7 @@ public class Parser {
 				
 			} else { // isHTML
 				
-				HtmlParseData parsedData = createHtmlParseData(page, contextURL);
+				HtmlParseData parsedData = createHtmlParseData(page);
 				
 				if (page.getContentCharset() == null) {
 					page.setContentCharset(parsedData.getContentCharset());
@@ -159,10 +169,10 @@ public class Parser {
 		/**
 		 * Open for extension
 		 */
-		protected HtmlParseData createHtmlParseData(final Page page, final String contextURL)
+		protected HtmlParseData createHtmlParseData(final Page page)
 				throws Exception
 		{
-			return getHtmlContentParser().parse(page, contextURL);
+			return getHtmlContentParser().parse(page);
 		}
 		
 		protected WebURLFactory getFactory() {
