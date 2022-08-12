@@ -333,7 +333,7 @@ public class WebCrawler implements Runnable {
                         if (curURL != null) {
                             curURL = handleUrlBeforeProcess(curURL);
                             if (curURL != null) {
-                                boolean processedSuccess = processPage(curURL);
+                                final boolean processedSuccess = processPage(curURL);
                                 // TODO set the processed status from SCHEDULED to COMPLETED or IN_ERROR
                                 frontier.setProcessed(curURL);
                             }
