@@ -22,13 +22,20 @@ package edu.uci.ics.crawler4j.parser;
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.url.WebURL;
 
 public class TextParseData implements ParseData {
 
     private String textContent;
     private Set<WebURL> outgoingUrls = new HashSet<>();
-
+    
+    
+    public void parseAndSetOutgoingUrls(final Page page) {
+        // By default does nothing and relies on the Parser to extract urls from the textContent and set them
+        // -> if the Parser exhibits this behavior (not in all cases), then setOutgoingUrls() will be called later on...
+    }
+    
     public String getTextContent() {
         return textContent;
     }

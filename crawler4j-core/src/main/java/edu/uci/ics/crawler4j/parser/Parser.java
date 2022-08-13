@@ -113,6 +113,9 @@ public class Parser {
 				
 				TextParseData parseData = createTextParseData();
 				setTextContent(parseData, page);
+				// Allow the same "moment" to parse its content with the Page-object as context.
+				parseData.parseAndSetOutgoingUrls(page);
+				// Behavior kept for backwards compatibility -> also identical to the handling of binary content
 				parseData.setOutgoingUrls(net.extractUrls(parseData.getTextContent()));
 				page.setParseData(parseData);
 				
