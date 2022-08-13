@@ -24,8 +24,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import crawlercommons.filters.basic.BasicURLNormalizer;
 import edu.uci.ics.crawler4j.Constants;
@@ -176,6 +174,10 @@ public class Parser {
 				throws Exception
 		{
 			return getHtmlContentParser().parse(page);
+		}
+		
+		protected CrawlConfig getConfig() {
+			return config;
 		}
 		
 		protected WebURLFactory getFactory() {
