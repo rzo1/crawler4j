@@ -157,7 +157,7 @@ public class Parser {
 		 * Open for extension
 		 */
 		protected CssParseData createCssParseData() {
-			return new CssParseData(getFactory(), getNormalizer());
+			return new CssParseData(getFactory(), getNormalizer(), getConfig().isHaltOnError());
 		}
 		
 		/**
