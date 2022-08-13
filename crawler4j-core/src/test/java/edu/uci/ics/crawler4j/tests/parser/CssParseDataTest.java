@@ -24,6 +24,8 @@ import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.helger.css.parser.ParseException;
+
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.parser.CssParseData;
 import edu.uci.ics.crawler4j.test.Crawler4jTestUtils;
@@ -100,7 +102,11 @@ public class CssParseDataTest {
 
         final CssParseData cssParseData = Crawler4jTestUtils.newCssParseData();
         cssParseData.setTextContent(cssText);
-        cssParseData.parseAndSetOutgoingUrls(new Page(webURL));
+        try {
+            cssParseData.parseAndSetOutgoingUrls(new Page(webURL));
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
         final Set<WebURL> outgoingUrls = cssParseData.getOutgoingUrls();
         assertNotNull(outgoingUrls);
         Assertions.assertThat(outgoingUrls).isEmpty();
@@ -111,10 +117,45 @@ public class CssParseDataTest {
 		
 		final CssParseData cssParseData = Crawler4jTestUtils.newCssParseData();
 		cssParseData.setTextContent(cssText);
-		cssParseData.parseAndSetOutgoingUrls(new Page(webURL));
+		try {
+			cssParseData.parseAndSetOutgoingUrls(new Page(webURL));
+		} catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
 		final Set<WebURL> outgoingUrls = cssParseData.getOutgoingUrls();
 		
 		Assertions.assertThat(outgoingUrls).hasSize(urls.length);
 		Assertions.assertThat(outgoingUrls).map(t -> t.getURL()).isSubsetOf(urls);
+	}
+	
+	@Test
+	void nonParsableCssHaltingOnErrorTrueTest() {
+		Assertions.assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> {
+			final String cssTextInput = TestUtils.getInputStringFrom("/css/non-parsable.css");
+			
+			final WebURL webURL = Crawler4jTestUtils.newWebURL("http://www.test.com/path/to/some.css");
+			
+			final boolean haltOnError = true;
+			final CssParseData cssParseData = Crawler4jTestUtils.newCssParseData(haltOnError);
+			cssParseData.setTextContent(cssTextInput);
+			cssParseData.parseAndSetOutgoingUrls(new Page(webURL));
+		}).havingCause().isInstanceOf(ParseException.class);
+	}
+	
+	@Test
+	void nonParsableCssHaltingOnErrorFalseTest() throws Exception {
+		final String cssTextInput = TestUtils.getInputStringFrom("/css/non-parsable.css");
+		
+		final WebURL webURL = Crawler4jTestUtils.newWebURL("http://www.test.com/path/to/some.css");
+		
+		final boolean haltOnError = false;
+		final CssParseData cssParseData = Crawler4jTestUtils.newCssParseData(haltOnError);
+		cssParseData.setTextContent(cssTextInput);
+		cssParseData.parseAndSetOutgoingUrls(new Page(webURL));
+		
+		final Set<WebURL> outgoingUrls = cssParseData.getOutgoingUrls();
+		
+		// When parsing fails, no outgoingUrls are provisioned.
+		Assertions.assertThat(outgoingUrls).isEmpty();
 	}
 }

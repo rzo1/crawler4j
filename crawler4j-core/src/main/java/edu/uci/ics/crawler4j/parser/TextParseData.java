@@ -31,7 +31,7 @@ public class TextParseData implements ParseData {
     private Set<WebURL> outgoingUrls = new HashSet<>();
     
     
-    public void parseAndSetOutgoingUrls(final Page page) {
+    public void parseAndSetOutgoingUrls(final Page page) throws Exception {
         // By default does nothing and relies on the Parser to extract urls from the textContent and set them
         // -> if the Parser exhibits this behavior (not in all cases), then setOutgoingUrls() will be called later on...
     }

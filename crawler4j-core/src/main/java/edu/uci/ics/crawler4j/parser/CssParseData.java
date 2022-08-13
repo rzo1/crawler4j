@@ -77,7 +77,7 @@ public class CssParseData extends TextParseData {
 	}
 	
 	@Override
-	public void parseAndSetOutgoingUrls(final Page page) {
+	public void parseAndSetOutgoingUrls(final Page page) throws Exception {
 		setOutgoingUrls(page.getWebURL());
 	}
 	

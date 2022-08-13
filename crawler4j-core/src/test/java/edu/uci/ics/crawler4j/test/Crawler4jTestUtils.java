@@ -62,6 +62,10 @@ public final class Crawler4jTestUtils {
 	}
 	
 	public static CssParseData newCssParseData() {
-		return new CssParseData(newWebURLFactory(), newNormalizer());
+		return newCssParseData(false);
+	}
+	
+	public static CssParseData newCssParseData(final boolean haltOnError) {
+		return new CssParseData(newWebURLFactory(), newNormalizer(), haltOnError);
 	}
 }
