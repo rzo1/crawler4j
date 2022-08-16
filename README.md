@@ -9,7 +9,7 @@ crawling the Web. Using it, you can setup a multi-threaded web crawler in few mi
 
 ## Table of content
 
-- [Why use this fork?](#why-use-this-fork)
+- [Why you should use this fork?](#why-you-should-use-this-fork)
 - [Installation](#installation)
 - [Quickstart](#quickstart)   
 - [More Examples](#more-examples)
