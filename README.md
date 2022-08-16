@@ -339,7 +339,7 @@ Overriding `FormAuthInfo.doFormLogin(...)` allows implementing more dynamic form
 ## High-level design diagrams
 
 Below activity diagram highlights the most important steps and vocabulary to know as user of the library.
-![crawler4j activity diagram](documentation/crawler4j activity diagram.svg "crawler4j activity diagram")
+![crawler4j activity diagram](documentation/crawler4j activity diagram.svg?raw=true "crawler4j activity diagram")
 
 ## License
 
