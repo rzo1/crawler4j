@@ -14,6 +14,7 @@ crawling the Web. Using it, you can setup a multi-threaded web crawler in few mi
 - [More Examples](#more-examples)
 - [Configuration Details](#configuration-details)
 - [Reconstructing extra urls to crawl](#reconstructing-extra-urls-to-crawl)
+- [High-level design diagrams](#high-level-design-diagrams)
 - [License](#license)
 
 ## Installation
@@ -297,6 +298,11 @@ new CrawlController(config, normalizer, pageFetcher, parser, robotstxtServer, tl
 new Parser(config, normalizer, htmlParser, tldList, frontierConfiguration.getWebURLFactory());
 // -> the magic should happen inside a custom htmlParser implementation.
 ```
+
+## High-level design diagrams
+
+Below activity diagram highlights the most important steps and vocabulary to know as user of the library.
+![crawler4j activity diagram](documentation/crawler4j activity diagram.svg "crawler4j activity diagram")
 
 ## License
 
