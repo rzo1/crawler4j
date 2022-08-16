@@ -25,7 +25,7 @@ This fork starts where the development of the previous main repository stalled.
 
 Some highlights include:
 
-- choice between multiple frontier implementation => avoid using a database with a license that doesn't comply with your use-case
+- choice between multiple frontier implementations => avoid using a database with a license that doesn't comply with your use-case
 - easy substitution of various parser implementations (not only for html, but also css, binary, and plain text)
 - dynamic authentication
 - improved exception handling, more versatile to customize
@@ -33,7 +33,7 @@ Some highlights include:
 - more documentation
 - more tests (JUnit)
 - uses Apache Maven as build tool
-- provides a clean upgrade paths by keeping backward compatibility in mind and deprecating methods before removing them
+- provides a clean upgrade path by keeping backward compatibility in mind and deprecating methods before removing them
 - more eyes have gone through the code, so readability and correctness have improved
 - maintained, i.e. dependencies are often updated to their latest versions
 
