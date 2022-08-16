@@ -23,7 +23,7 @@ crawling the Web. Using it, you can setup a multi-threaded web crawler in few mi
 
 This fork starts where the development of the previous main repository stalled.
 
-Some highlights:
+Some highlights include:
 
 - choice of frontiers => avoid using a database with a license that doesn't comply with your use-case
 - easily substituting various parser implementations (not only for html, but also css, binary, and plain text)
