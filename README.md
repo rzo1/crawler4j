@@ -33,7 +33,7 @@ Some highlights include:
 - more documentation
 - more tests (JUnit)
 - uses Apache Maven as build tool
-- provides clean upgrade paths by keeping backward compatibility in mind and deprecating methods before removing them
+- provides a clean upgrade paths by keeping backward compatibility in mind and deprecating methods before removing them
 - more eyes have gone through the code, so readability and correctness have improved
 - maintained, so dependencies are often updated to their latest versions
 
