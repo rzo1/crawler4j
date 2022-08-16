@@ -77,6 +77,7 @@ or you use an external [crawler-commons/url-frontier](https://github.com/crawler
 You need to create a crawler class that extends WebCrawler. This class decides which URLs
 should be crawled and handles the downloaded page. The following is a sample
 implementation:
+
 ```java
 public class MyCrawler extends WebCrawler {
 
@@ -131,6 +132,7 @@ public class MyCrawler extends WebCrawler {
     
 }
 ```
+
 As can be seen in the above code, there are two main functions that should be overridden:
 
 - shouldVisit: This function decides whether the given URL should be crawled or not. In
@@ -205,14 +207,6 @@ Since, "A" is a seed page, it will have a depth of 0. "B" will have depth of 1 a
 ```java
 crawlConfig.setMaxDepthOfCrawling(maxDepthOfCrawling);
 ```
-### Enable SSL
-To enable SSL simply:
-
-```java
-CrawlConfig config = new CrawlConfig();
-
-config.setIncludeHttpsPages(true);
-```
 
 ### Maximum number of pages to crawl
 Although by default there is no limit on the number of pages to crawl, you can set a limit
@@ -250,6 +244,7 @@ crawlConfig.setProxyHost("proxyserver.example.com");
 crawlConfig.setProxyPort(8080);
 ```
 If your proxy also needs authentication:
+
 ```java
 crawlConfig.setProxyUsername(username);
 crawlConfig.setProxyPassword(password);
@@ -260,6 +255,7 @@ Sometimes you need to run a crawler for a long time. It is possible that the cra
 terminates unexpectedly. In such cases, it might be desirable to resume the crawling.
 You would be able to resume a previously stopped/crashed crawl using the following
 settings:
+
 ```java
 crawlConfig.setResumableCrawling(true);
 ```
@@ -273,6 +269,7 @@ for more details. By default crawler4j uses the following user agent string:
 "crawler4j (https://github.com/rzo1/crawler4j/)"
 ```
 However, you can overwrite it:
+
 ```java
 crawlConfig.setUserAgentString(userAgentString);
 ```
