@@ -9,6 +9,7 @@ crawling the Web. Using it, you can setup a multi-threaded web crawler in few mi
 
 ## Table of content
 
+- [Why use this fork?](#why-use-this-fork)
 - [Installation](#installation)
 - [Quickstart](#quickstart)   
 - [More Examples](#more-examples)
@@ -17,6 +18,24 @@ crawling the Web. Using it, you can setup a multi-threaded web crawler in few mi
 - [Authentication](#authentication)
 - [High-level design diagrams](#high-level-design-diagrams)
 - [License](#license)
+
+## Why use this fork?
+
+This fork starts where development on the previous main repository stalled.
+
+Some highlights:
+
+- choice of frontiers => avoid using a database with a license that doesn't comply with your use-case
+- easily substituting various parser implementations (not only for html, but also css, binary, and plain text)
+- dynamic authentication
+- improved exception handling, more versatile to customize
+- fixes various parsing issues
+- more documentation
+- more tests (JUnit)
+- uses Maven
+- provides clean upgrade paths by keeping backward compatibility in mind and deprecating methods before removing them
+- more eyes have gone through the code, so readability and correctness have improved
+- maintained, so dependencies are often updated to their latest versions
 
 ## Installation
 
