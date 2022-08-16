@@ -35,7 +35,7 @@ Some highlights include:
 - uses Apache Maven as build tool
 - provides a clean upgrade paths by keeping backward compatibility in mind and deprecating methods before removing them
 - more eyes have gone through the code, so readability and correctness have improved
-- maintained, so dependencies are often updated to their latest versions
+- maintained, i.e. dependencies are often updated to their latest versions
 
 ## Installation
 
