@@ -19,7 +19,7 @@ crawling the Web. Using it, you can setup a multi-threaded web crawler in few mi
 - [High-level design diagrams](#high-level-design-diagrams)
 - [License](#license)
 
-## Why use this fork?
+## Why you should use this fork?
 
 This fork starts where the development of the previous main repository stalled.
 
