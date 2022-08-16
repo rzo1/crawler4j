@@ -65,6 +65,15 @@
             <url>https://github.com/rzo1/crawler4j</url>
             <timezone>Europe/Berlin</timezone>
         </developer>
+        <developer>
+            <id>brbog</id>
+            <name>Bram Bogaert</name>
+            <roles>
+                <role>Contributor</role>
+            </roles>
+            <email/>
+            <timezone>Europe/Brussels</timezone>
+        </developer>
     </developers>
 
     <organization>
