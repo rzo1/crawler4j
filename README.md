@@ -26,7 +26,7 @@ This fork starts where the development of the previous main repository stalled.
 Some highlights include:
 
 - choice of frontiers => avoid using a database with a license that doesn't comply with your use-case
-- easily substituting various parser implementations (not only for html, but also css, binary, and plain text)
+- easy substitution of various parser implementations (not only for html, but also css, binary, and plain text)
 - dynamic authentication
 - improved exception handling, more versatile to customize
 - fixes various parsing issues
