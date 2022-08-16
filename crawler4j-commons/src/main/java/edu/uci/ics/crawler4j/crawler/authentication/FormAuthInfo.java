@@ -20,7 +20,6 @@
 package edu.uci.ics.crawler4j.crawler.authentication;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,13 +60,10 @@ public class FormAuthInfo extends AuthInfo {
      * @param loginUrl Full login URL, starting with "http"... ending with the full URL
      * @param usernameFormStr "Name" attribute of the username form field
      * @param passwordFormStr "Name" attribute of the password form field
-     *
-     * @throws MalformedURLException Make sure your URL is valid
      */
     public FormAuthInfo(String username, String password, String loginUrl, String usernameFormStr,
-                        String passwordFormStr) throws MalformedURLException {
-        super(AuthenticationType.FORM_AUTHENTICATION, MethodType.POST, loginUrl, username,
-              password);
+                        String passwordFormStr) {
+        super(AuthenticationType.FORM_AUTHENTICATION, MethodType.POST, loginUrl, username, password);
 
         this.usernameFormStr = usernameFormStr;
         this.passwordFormStr = passwordFormStr;

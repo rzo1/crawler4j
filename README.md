@@ -311,10 +311,10 @@ An example on how to configure form authentication in its most simple form:
 
 ```java
 		final CrawlConfig config = new CrawlConfig();
-		config.addAuthInfo(new FormAuthInfo(//
-				"myUser", "myReallyGoodPwd"//
-				, "https://www.test.com/login"//
-				, "username", "password"//
+		config.addAuthInfo(new FormAuthInfo(
+				"myUser", "myReallyGoodPwd"
+				, "https://www.test.com/login"
+				, "username", "password"
 		));
 ```
 

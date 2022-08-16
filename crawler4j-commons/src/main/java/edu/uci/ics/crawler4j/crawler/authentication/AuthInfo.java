@@ -63,11 +63,10 @@ public abstract class AuthInfo {
      * @throws MalformedURLException Make sure your URL is valid
      */
     protected AuthInfo(AuthenticationType authenticationType, MethodType httpMethod,
-                       String loginUrl, String username, String password)
-            throws MalformedURLException {
+                       String loginUrl, String username, String password) {
         this.authenticationType = authenticationType;
         this.httpMethod = httpMethod;
-        URL url = new URL(loginUrl);
+        URL url = asURL(loginUrl);
         this.protocol = url.getProtocol();
         this.host = url.getHost();
         this.port =
@@ -77,7 +76,15 @@ public abstract class AuthInfo {
         this.username = username;
         this.password = password;
     }
-
+    
+    protected URL asURL(String loginUrl) {
+        try {
+            return new URL(loginUrl);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
     /**
      * @return Authentication type (BASIC, FORM)
      */

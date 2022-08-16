@@ -20,7 +20,6 @@
 package edu.uci.ics.crawler4j.crawler.authentication;
 
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.Map;
 
@@ -41,8 +40,7 @@ public class NtAuthInfo extends AuthInfo implements CredentialsProvider {
 	
     private String domain;
 
-    public NtAuthInfo(String username, String password, String loginUrl, String domain)
-        throws MalformedURLException {
+    public NtAuthInfo(String username, String password, String loginUrl, String domain) {
         super(AuthenticationType.NT_AUTHENTICATION, MethodType.GET, loginUrl, username, password);
         this.domain = domain;
     }
