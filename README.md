@@ -14,6 +14,7 @@ crawling the Web. Using it, you can setup a multi-threaded web crawler in few mi
 - [More Examples](#more-examples)
 - [Configuration Details](#configuration-details)
 - [Reconstructing extra urls to crawl](#reconstructing-extra-urls-to-crawl)
+- [Authentication](#authentication)
 - [High-level design diagrams](#high-level-design-diagrams)
 - [License](#license)
 
@@ -298,6 +299,26 @@ new CrawlController(config, normalizer, pageFetcher, parser, robotstxtServer, tl
 new Parser(config, normalizer, htmlParser, tldList, frontierConfiguration.getWebURLFactory());
 // -> the magic should happen inside a custom htmlParser implementation.
 ```
+
+## Authentication
+
+Different forms of authentication are supported:
+- BASIC_AUTHENTICATION
+- FORM_AUTHENTICATION
+- NT_AUTHENTICATION.
+
+An example on how to configure form authentication in its most simple form:
+
+```java
+		final CrawlConfig config = new CrawlConfig();
+		config.addAuthInfo(new FormAuthInfo(//
+				"myUser", "myReallyGoodPwd"//
+				, "https://www.test.com/login"//
+				, "username", "password"//
+		));
+```
+
+Overriding `FormAuthInfo.doFormLogin(...)` allows implementing more dynamic form authentication (entering more fields, fetching dynamic login forms, ...).
 
 ## High-level design diagrams
 
