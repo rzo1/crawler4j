@@ -31,7 +31,7 @@ Some highlights include:
 - improved exception handling, more versatile to customize
 - fixes various parsing issues
 - more documentation
-- more tests (JUnit)
+- more tests and all tests are JUnit5 based (so no knowledge of Groovy and/or Spock needed anymore to maintain the codebase)
 - uses Apache Maven as build tool
 - provides a clean upgrade path by keeping backward compatibility in mind and deprecating methods before removing them
 - more eyes have gone through the code, so readability and correctness have improved
