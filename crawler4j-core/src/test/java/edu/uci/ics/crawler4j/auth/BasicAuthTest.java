@@ -39,7 +39,7 @@ class BasicAuthTest {
         .options(new WireMockConfiguration().dynamicPort())
         .build();
 
-    @Disabled()
+    @Disabled("TODO test/fix basic auth")
     @Test
     void httpBasicAuth() throws Exception {
         // given: "two pages on first.com behind basic auth"
