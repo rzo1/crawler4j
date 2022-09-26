@@ -120,7 +120,7 @@
         <cache2k.version>2.6.1.Final</cache2k.version>
 
         <!-- 3rd party test dependencies -->
-        <junit.version>5.9.0</junit.version>
+        <junit.version>5.9.1</junit.version>
         <assertj.version>3.23.1</assertj.version>
         <wiremock.version>2.34.0</wiremock.version>
 
