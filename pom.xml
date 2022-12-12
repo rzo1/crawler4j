@@ -81,6 +81,7 @@
     </organization>
 
     <modules>
+        <module>crawler4j-archetype</module>
         <module>crawler4j-boms</module>
         <module>crawler4j-commons</module>
         <module>crawler4j-core</module>

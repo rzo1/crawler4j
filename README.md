@@ -74,6 +74,17 @@ or you use an external [crawler-commons/url-frontier](https://github.com/crawler
 ```
 
 ## Quickstart
+
+### Archetype
+
+Since `5.0.1`, we provide a Maven archetype to bootstrap crawler4j development. Just urn
+
+```bash
+mvn archetype:generate -DarchetypeGroupId=de.hs-heilbronn.mi -DarchetypeArtifactId=crawler4j-archetype -DarchetypeVersion=5.0.1                
+```
+
+### Manual
+
 You need to create a crawler class that extends WebCrawler. This class decides which URLs
 should be crawled and handles the downloaded page. The following is a sample
 implementation:

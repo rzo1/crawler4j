@@ -1,0 +1,49 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>\${groupId}</groupId>
+	<artifactId>\${artifactId}</artifactId>
+	<version>\${version}</version>
+	<packaging>jar</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<crawler4j.version>${project.version}</crawler4j.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.2</version>
+				<configuration>
+					<source>11</source>
+					<target>11</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>de.hs-heilbronn.mi</groupId>
+			<artifactId>crawler4j-with-hsqldb</artifactId>
+			<version>${crawler4j.version}</version>
+		</dependency>
+		<!-- or sleepycat -->
+<!--		<dependency>-->
+<!--			<groupId>de.hs-heilbronn.mi</groupId>-->
+<!--			<artifactId>crawler4j-with-sleepycat</artifactId>-->
+<!--			<version>${crawler4j.version}</version>-->
+<!--		</dependency>-->
+		<!-- or urlfrontier -->
+<!--		<dependency>-->
+<!--			<groupId>de.hs-heilbronn.mi</groupId>-->
+<!--			<artifactId>crawler4j-with-urlfrontier</artifactId>-->
+<!--			<version>${crawler4j.version}</version>-->
+<!--		</dependency>-->
+	</dependencies>
+</project>
