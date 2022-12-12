@@ -107,7 +107,7 @@
         <slf4j.version>1.7.36</slf4j.version>
         <log4j.version>2.19.0</log4j.version>
 
-        <apache.http.client.version>5.2</apache.http.client.version>
+        <apache.http.client.version>5.2.1</apache.http.client.version>
         <apache.http.core.version>5.2</apache.http.core.version>
         <apache.http.core.h2.version>5.2</apache.http.core.h2.version>
 
