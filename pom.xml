@@ -140,7 +140,7 @@
         <maven.versions.version>2.15.0</maven.versions.version>
         <maven.forbiddenapis.version>3.4</maven.forbiddenapis.version>
         <maven.enforcer.version>3.2.1</maven.enforcer.version>
-        <maven.surefire.version>3.0.0-M9</maven.surefire.version>
+        <maven.surefire.version>3.0.0</maven.surefire.version>
     </properties>
 
     <profiles>
