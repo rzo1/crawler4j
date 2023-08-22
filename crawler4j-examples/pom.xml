@@ -14,6 +14,7 @@
     <modules>
         <module>crawler4j-examples-base</module>
         <module>crawler4j-examples-postgres</module>
+        <module>crawler4j-examples-dynamic</module>
     </modules>
 
 

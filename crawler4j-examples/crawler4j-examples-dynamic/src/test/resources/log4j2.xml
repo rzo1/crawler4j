@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %-5p [%t] %C{2} (%F:%L) - %m%n"/>
+        </Console>
+
+        <RollingFile name="ERRORFILE" fileName="logs/crawler4j-examples-ERROR.log"
+                     filePattern="logs/crawler4j-examples-ERROR.%d{yyyy-MM-dd}.log">
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT"/>
+            <PatternLayout pattern="%d{ISO8601} %-5p [%t] %c{1}(%L): %m%n"/>
+            <TimeBasedTriggeringPolicy/>
+        </RollingFile>
+
+        <RollingFile name="WARNFILE" fileName="logs/crawler4j-examples-WARN.log"
+                     filePattern="logs/crawler4j-examples-WARN.%d{yyyy-MM-dd}.log">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT"/>
+            </Filters>
+            <PatternLayout pattern="%d{ISO8601} %-5p [%t] %c{1}(%L): %m%n"/>
+            <TimeBasedTriggeringPolicy/>
+        </RollingFile>
+
+        <RollingFile name="INFOFILE" fileName="logs/crawler4j-examples-INFO.log"
+                     filePattern="logs/crawler4j-examples-INFO.%d{yyyy-MM-dd}.log">
+            <Filters>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT"/>
+            </Filters>
+            <PatternLayout pattern="%d{ISO8601} %-5p [%t] %c{1}(%L): %m%n"/>
+            <TimeBasedTriggeringPolicy/>
+        </RollingFile>
+
+        <RollingFile name="DEBUGFILE" fileName="logs/crawler4j-examples-DEBUG.log"
+                     filePattern="logs/crawler4j-examples-DEBUG.%d{yyyy-MM-dd}.log">
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT"/>
+            </Filters>
+            <PatternLayout pattern="%d{ISO8601} %-5p [%t] %c{1}(%L): %m%n"/>
+            <TimeBasedTriggeringPolicy/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="edu.uci.ics.crawler4j" level="INFO">
+            <AppenderRef ref="STDOUT"/>
+        </Logger>
+<!--        <Logger name="edu.uci.ics.crawler4j.fetcher.SniPoolingHttpClientConnectionManager" level="WARN">-->
+<!--            <AppenderRef ref="STDOUT"/>-->
+<!--            <AppenderRef ref="ERRORFILE"/>-->
+<!--            <AppenderRef ref="WARNFILE"/>-->
+<!--            <AppenderRef ref="INFOFILE"/>-->
+<!--            <AppenderRef ref="DEBUGFILE"/>-->
+<!--        </Logger>-->
+<!--        <Logger name="edu.uci.ics.crawler4j.fetcher.SniSSLConnectionSocketFactory" level="WARN">-->
+<!--            <AppenderRef ref="STDOUT"/>-->
+<!--            <AppenderRef ref="ERRORFILE"/>-->
+<!--            <AppenderRef ref="WARNFILE"/>-->
+<!--            <AppenderRef ref="INFOFILE"/>-->
+<!--            <AppenderRef ref="DEBUGFILE"/>-->
+<!--        </Logger>-->
+        <Root level="WARN">
+            <AppenderRef ref="ERRORFILE"/>
+            <AppenderRef ref="WARNFILE"/>
+            <AppenderRef ref="INFOFILE"/>
+            <AppenderRef ref="DEBUGFILE"/>
+        </Root>
+    </Loggers>
+</Configuration>

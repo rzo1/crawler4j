@@ -141,6 +141,10 @@
         <maven.forbiddenapis.version>3.5.1</maven.forbiddenapis.version>
         <maven.enforcer.version>3.3.0</maven.enforcer.version>
         <maven.surefire.version>3.1.2</maven.surefire.version>
+
+        <!-- Selenium Java version -->
+        <selenium.version>4.11.0</selenium.version>
+
     </properties>
 
     <profiles>
