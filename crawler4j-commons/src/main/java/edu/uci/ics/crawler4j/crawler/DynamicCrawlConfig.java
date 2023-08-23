@@ -21,10 +21,11 @@ package edu.uci.ics.crawler4j.crawler;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
-import java.util.List;
-
-import static edu.uci.ics.crawler4j.crawler.DynamicCrawlConfig.WebDriverType.firefox;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Extends {@link CrawlConfig} to add configuration properties for the Selenium's <em>WebDriver</em>.
@@ -36,7 +37,7 @@ public class DynamicCrawlConfig extends CrawlConfig {
         firefox
     }
 
-    private WebDriverType webDriverType = firefox;
+    private WebDriverType webDriverType = WebDriverType.firefox;
 
     /**
      * If dynamic content crawling is used, the maximum time to wait for dynamic content loading in seconds.
@@ -46,17 +47,12 @@ public class DynamicCrawlConfig extends CrawlConfig {
     /**
      * Absolute path to the driver binary on the local filesystem.
      */
-    private String webDriverPath;
+    private Path webDriverPath;
 
     /**
-     * The user agent to be used by the web driver.
+     * Additional options for the web driver, that will be added to the default ones, or override them.
      */
-    private String webDriverUserAgent;
-
-    /**
-     * Additional options for the web driver, that will be added to the default ones.
-     */
-    private List<String> webDriverOptions = Collections.emptyList();
+    private Map<String, Optional<String>> webDriverOptions = Collections.emptyMap();
 
     public int getMaxWaitForDynamicContentInSeconds() {
         return maxWaitForDynamicContentInSeconds;
@@ -66,12 +62,12 @@ public class DynamicCrawlConfig extends CrawlConfig {
         this.maxWaitForDynamicContentInSeconds = maxWaitForDynamicContentInSeconds;
     }
 
-    public String getWebDriverPath() {
+    public Path getWebDriverPath() {
         return webDriverPath;
     }
 
     public void setWebDriverPath(String webDriverPath) {
-        this.webDriverPath = webDriverPath;
+        this.webDriverPath = FileSystems.getDefault().getPath(webDriverPath).toAbsolutePath();
     }
 
     public WebDriverType getWebDriverType() {
@@ -82,27 +78,19 @@ public class DynamicCrawlConfig extends CrawlConfig {
         this.webDriverType = webDriverType;
     }
 
-    public List<String> getWebDriverOptions() {
+    public Map<String, Optional<String>> getWebDriverOptions() {
         return webDriverOptions;
     }
 
-    public void setWebDriverOptions(List<String> webDriverOptions) {
+    public void setWebDriverOptions(Map<String, Optional<String>> webDriverOptions) {
         this.webDriverOptions = webDriverOptions;
-    }
-
-    public String getWebDriverUserAgent() {
-        return webDriverUserAgent;
-    }
-
-    public void setWebDriverUserAgent(String webDriverUserAgent) {
-        this.webDriverUserAgent = webDriverUserAgent;
     }
 
     @Override
     public void validate() throws Exception {
         super.validate();
 
-        if (!Files.exists(FileSystems.getDefault().getPath(webDriverPath))) {
+        if (!Files.exists(webDriverPath)) {
             throw new Exception("Headless browser driver not found at " + webDriverPath);
         }
     }
@@ -112,9 +100,44 @@ public class DynamicCrawlConfig extends CrawlConfig {
         return super.toString() +
                 "Web driver type:: " + webDriverType + "\n" +
                 "Web driver path:: " + webDriverPath + "\n" +
-                "Web driver user agent:: " + webDriverUserAgent + "\n" +
-                "Web driver options:: " + String.join(" ", webDriverOptions) + "\n" +
+                "Web driver options:: " + String.join(" ", optionsAsArray(webDriverOptions)) + "\n" +
                 "Max wait for dynamic content loading in seconds:: " + maxWaitForDynamicContentInSeconds + "\n";
+    }
+
+    /**
+     * Default options for the headless browser
+     * @param config the {@link DynamicCrawlConfig} where the user agent is defined.
+     * @return the default options for the headless browser
+     */
+    public static Map<String, Optional<String>> defaultHeadlessBrowserOptions(DynamicCrawlConfig config) {
+        return Map.of(
+                "--headless", Optional.empty(),
+                "--disable-gpu", Optional.empty(),
+                "--window-size", Optional.of("1920,1080"),
+                "--ignore-certificate-errors", Optional.empty(),
+                "--user-agent", Optional.of(config.getUserAgentString()));
+    }
+
+    /**
+     * Browser options defined in {@link DynamicCrawlConfig#getWebDriverOptions()} are concatenated to default options,
+     * overriding in case of a duplicated option.
+     */
+    public static String[] headlessBrowserOptions(DynamicCrawlConfig config) {
+        Map<String, Optional<String>> options = new LinkedHashMap<>();
+        options.putAll(defaultHeadlessBrowserOptions(config));
+        options.putAll(config.getWebDriverOptions());
+        return optionsAsArray(options);
+    }
+
+    private static String[] optionsAsArray(Map<String, Optional<String>> options) {
+        return options.entrySet()
+                .stream()
+                .map(e -> {
+                    StringBuilder opt = new StringBuilder(e.getKey());
+                    e.getValue().ifPresent(v -> opt.append("=").append(v));
+                    return opt.toString();
+                })
+                .toArray(String[]::new);
     }
 
 }

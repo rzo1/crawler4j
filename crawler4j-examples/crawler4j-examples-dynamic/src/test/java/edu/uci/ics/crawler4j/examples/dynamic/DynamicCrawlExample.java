@@ -99,7 +99,7 @@ public class DynamicCrawlExample {
         config.setWebDriverType(DynamicCrawlConfig.WebDriverType.firefox);
 
         // Set the user agent to an actual Firefox agent
-        config.setWebDriverUserAgent("Mozilla/5.0 (X11; Linux i686; rv:109.0) Gecko/20100101 Firefox/116.0");
+        config.setUserAgentString("Mozilla/5.0 (X11; Linux i686; rv:109.0) Gecko/20100101 Firefox/116.0");
 
         // You will need to download an actual Gecko driver from https://github.com/mozilla/geckodriver/releases
         //config.setWebDriverPath("/tmp/crawler4j/driver/geckodriver-v0.33.0-linux64/geckodriver");
