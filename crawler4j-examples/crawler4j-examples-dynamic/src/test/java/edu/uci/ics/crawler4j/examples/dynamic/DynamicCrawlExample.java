@@ -28,6 +28,7 @@ import edu.uci.ics.crawler4j.frontier.SleepycatFrontierConfiguration;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.url.WebURL;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +113,7 @@ public class DynamicCrawlExample {
         CrawlController controller = DynamicCrawlerHelper.crawlControllerFactory(
                 config,
                 // We will wait until the body tag is loaded
-                (conf, page) -> By.cssSelector("body"),
+                (conf, page, driver) -> driver.findElement(By.cssSelector("body")),
                 new RobotstxtConfig(),
                 new SleepycatFrontierConfiguration(config));
 

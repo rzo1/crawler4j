@@ -28,19 +28,17 @@ import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.parser.TikaHtmlParser;
 import edu.uci.ics.crawler4j.url.TLDList;
 import edu.uci.ics.crawler4j.url.WebURLFactory;
-import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.nio.charset.Charset;
 import java.time.Duration;
-import java.util.function.BiFunction;
 
 /**
  * Overrides {@link TikaHtmlParser} so that the page content is fetched using Selenium's {@link WebDriver}.
  * A programmatic wait for dynamic content loading is performed prior to content fetching, which content we should wait
- * for is defined by {@link DynamicTikaHtmlParser#waitSelectorSupplier}.
+ * for is defined by {@link DynamicTikaHtmlParser#waitPredicate}.
  *
  * Since {@link WebDriver} is not thread safe, we use a {@link ThreadLocal} wrapper. The {@link WebDriver} for each
  * thread should be provided through the {@link DynamicTikaHtmlParser#setWebDriver(WebDriver)} method.
@@ -53,10 +51,9 @@ public class DynamicTikaHtmlParser extends TikaHtmlParser {
     private final ThreadLocal<WebDriver> webDriver;
 
     /**
-     * A function that provides a selector clause for a {@link Page} given a {@link DynamicCrawlConfig}.
-     * This selector will be used to wait for dynamic content loading.
+     * A function that provides a predicate on whether dynamic content is loaded.
      */
-    private final BiFunction<DynamicCrawlConfig, Page, By> waitSelectorSupplier;
+    private final DynamicContentLoadingFinishedPredicate waitPredicate;
 
     /**
      * The maximum time in seconds to for dynamic content loading.
@@ -68,10 +65,10 @@ public class DynamicTikaHtmlParser extends TikaHtmlParser {
             BasicURLNormalizer normalizer,
             TLDList tldList,
             WebURLFactory webURLFactory,
-            BiFunction<DynamicCrawlConfig, Page, By> waitSelectorSupplier) {
+            DynamicContentLoadingFinishedPredicate waitPredicate) {
         super(config, normalizer, tldList, webURLFactory);
         this.webDriver = new ThreadLocal<>();
-        this.waitSelectorSupplier = waitSelectorSupplier;
+        this.waitPredicate = waitPredicate;
         this.maxWaitForDynamicContentInSeconds = config.getMaxWaitForDynamicContentInSeconds();
     }
 
@@ -102,14 +99,16 @@ public class DynamicTikaHtmlParser extends TikaHtmlParser {
         String url = page.getWebURL().getURL();
         webDriver.get().navigate().to(url);
 
-        By selector = waitSelectorSupplier.apply((DynamicCrawlConfig) getCrawlConfig(), page);
         try {
             new WebDriverWait(
                     webDriver.get(),
                     Duration.ofSeconds(maxWaitForDynamicContentInSeconds))
-                    .until(d -> d.findElement(selector));
+                    .until(d -> waitPredicate.test(
+                            (DynamicCrawlConfig) getCrawlConfig(),
+                            page,
+                            d));
         } catch (final TimeoutException e) {
-            logger.warn("Wait on {} timed out for {}", selector, url);
+            logger.warn("Wait for dynamic content loading timed out for {}", url);
         }
 
         byte[] pageSource = webDriver.get().getPageSource().getBytes(Charset.forName(page.getContentCharset()));

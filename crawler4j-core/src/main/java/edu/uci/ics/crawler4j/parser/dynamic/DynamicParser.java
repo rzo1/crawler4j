@@ -31,6 +31,7 @@ import org.openqa.selenium.WebDriver;
 
 import java.io.IOException;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 /**
  * Extends {@link Parser} to use {@link DynamicTikaHtmlParser} and provides a setter method so that
@@ -43,11 +44,11 @@ public class DynamicParser extends Parser {
             BasicURLNormalizer normalizer,
             TLDList tldList,
             WebURLFactory webURLFactory,
-            BiFunction<DynamicCrawlConfig, Page, By> waitSelectorSupplier) throws IOException {
+            DynamicContentLoadingFinishedPredicate waitPredicate) throws IOException {
         super(
                 config,
                 normalizer,
-                new DynamicTikaHtmlParser(config, normalizer, tldList, webURLFactory, waitSelectorSupplier),
+                new DynamicTikaHtmlParser(config, normalizer, tldList, webURLFactory, waitPredicate),
                 tldList,
                 webURLFactory);
     }
