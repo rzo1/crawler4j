@@ -106,7 +106,7 @@
         <crawler4j.version>${project.parent.version}</crawler4j.version>
 
         <slf4j.version>1.7.36</slf4j.version>
-        <log4j.version>2.20.0</log4j.version>
+        <log4j.version>2.22.0</log4j.version>
 
         <apache.http.client.version>5.2.1</apache.http.client.version>
         <apache.http.core.version>5.2.3</apache.http.core.version>
