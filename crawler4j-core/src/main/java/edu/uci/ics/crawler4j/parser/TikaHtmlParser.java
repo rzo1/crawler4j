@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import crawlercommons.filters.basic.BasicURLNormalizer;
+import edu.uci.ics.crawler4j.crawler.DynamicCrawlConfig;
 import edu.uci.ics.crawler4j.url.UrlResolver;
 import edu.uci.ics.crawler4j.url.WebURLFactory;
 import org.apache.tika.metadata.DublinCore;
@@ -148,6 +149,10 @@ public class TikaHtmlParser implements edu.uci.ics.crawler4j.parser.HtmlParser {
 
     protected boolean containsForbiddenRefTag(String href) {
         return Stream.of("about:", "tel:", "data:", "whatsapp:", "javascript:", "viber:", "sms:", "android-app:", "fb-messenger:", "mailto:", "@").anyMatch(href::contains);
+    }
+
+    protected CrawlConfig getCrawlConfig() {
+        return config;
     }
 
     private String chooseEncoding(Page page, Metadata metadata) {

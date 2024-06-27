@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>crawler4j-examples</artifactId>
+        <groupId>de.hs-heilbronn.mi</groupId>
+        <version>5.0.3-SNAPSHOT</version>
+    </parent>
+    <artifactId>crawler4j-examples-dynamic</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <dependencies>
+        <dependency>
+            <groupId>de.hs-heilbronn.mi</groupId>
+            <artifactId>crawler4j-with-sleepycat</artifactId>
+            <version>${crawler4j.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>de.hs-heilbronn.mi</groupId>
+            <artifactId>crawler4j-with-hsqldb</artifactId>
+            <version>${crawler4j.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>de.hs-heilbronn.mi</groupId>
+            <artifactId>crawler4j-with-urlfrontier</artifactId>
+            <version>${crawler4j.version}</version>
+            <type>pom</type>
+        </dependency>
+    </dependencies>
+
+</project>
