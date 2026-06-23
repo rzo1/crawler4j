@@ -30,6 +30,11 @@
             <version>${commons-io.version}</version>
         </dependency>
         <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+          <version>${commons-lang.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
             <version>${apache.http.client.version}</version>
@@ -75,7 +80,7 @@
             <artifactId>jul-to-slf4j</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-        
+
 					<!-- Test dependencies -->
 					<dependency>
 						<groupId>org.junit.jupiter</groupId>
