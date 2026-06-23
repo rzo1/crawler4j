@@ -111,6 +111,7 @@
         <url-detector.version>0.1.23</url-detector.version>
         <crawler-commons.version>1.6</crawler-commons.version>
         <commons-io.version>2.22.0</commons-io.version>
+        <commons-lang.version>3.20.0</commons-lang.version>
 
         <cache2k.version>2.6.1.Final</cache2k.version>
 
